@@ -2,7 +2,7 @@ import 'package:devtools_app_shared/ui.dart';
 import 'package:devtools_extensions/devtools_extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Split;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -38,8 +38,8 @@ class DriftDevtoolsBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = ref.watch(selectedDatabase);
 
-    return Split(
-      axis: Split.axisFor(context, 0.85),
+    return SplitPane(
+      axis: SplitPane.axisFor(context, 0.85),
       initialFractions: const [1 / 3, 2 / 3],
       children: [
         const RoundedOutlinedBorder(
@@ -95,8 +95,10 @@ class _InfoButton extends StatelessWidget {
                     'DevTools. If you have ideas for additional functionality '
                     'that could be provided here, please ',
                   ),
-                  _link('opening an issue',
-                      'https://github.com/simolus3/drift/issues/new'),
+                  _link(
+                    'opening an issue',
+                    'https://github.com/simolus3/drift/issues/new?template=bug_report_devtools_extension.md',
+                  ),
                   _text(
                       'to make suggestions.\nAlso, thanks to Koen Van Looveren for writing '),
                   _link('drift_db_viewer',

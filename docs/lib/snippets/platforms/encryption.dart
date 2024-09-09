@@ -24,7 +24,7 @@ void databases() {
   final myDatabaseFile = File('/dev/null');
 
   // #docregion encrypted1
-  final token = RootIsolateToken.instance;
+  final token = RootIsolateToken.instance!;
   NativeDatabase.createInBackground(
     myDatabaseFile,
     isolateSetup: () async {
@@ -33,6 +33,9 @@ void databases() {
     },
     setup: (rawDb) {
       rawDb.execute("PRAGMA key = 'passphrase';");
+
+      // Recommended option, not enabled by default on SQLCipher
+      rawDb.config.doubleQuotedStringLiterals = false;
     },
   );
   // #enddocregion encrypted1
@@ -47,6 +50,9 @@ void databases() {
     setup: (rawDb) {
       assert(_debugCheckHasCipher(rawDb));
       rawDb.execute("PRAGMA key = 'passphrase';");
+
+      // Recommended option, not enabled by default on SQLCipher
+      rawDb.config.doubleQuotedStringLiterals = false;
     },
   );
   // #enddocregion encrypted2

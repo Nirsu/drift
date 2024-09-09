@@ -27,7 +27,7 @@ import 'package:sqlite3/src/wasm/js_interop/core.dart';
 import 'package:sqlite3/wasm.dart';
 import 'package:stream_channel/stream_channel.dart';
 
-import '../new_channel.dart';
+import '../channel_new.dart';
 import 'protocol.dart';
 
 @JS('navigator')
@@ -120,6 +120,19 @@ Future<bool> checkIndexedDbExists(String databaseName) async {
   try {
     final idb = globalContext['indexedDB'] as IDBFactory;
 
+    // Instead of the open+abort hack below, see if we can use a newer web API
+    // listing databases instead.
+    if (idb.has('databases')) {
+      final databases = await idb.databases().toDart;
+      for (final entry in databases.toDart) {
+        if (entry.name == databaseName) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
     final openRequest = idb.open(databaseName, 1);
     openRequest.onupgradeneeded = (IDBVersionChangeEvent event) {
       // If there's an upgrade, we're going from 0 to 1 - the database doesn't
@@ -131,6 +144,13 @@ Future<bool> checkIndexedDbExists(String databaseName) async {
 
     indexedDbExists ??= true;
     database.close();
+
+    if (indexedDbExists == false) {
+      // We've just created the database in onUpgradeNeeded. We tried to abort
+      // that, but it looks like Safari does the worst possible thing then and
+      // keeps an empty database with an initialized version around.
+      await idb.deleteDatabase(databaseName).complete();
+    }
   } catch (_) {
     // May throw due to us aborting in the upgrade callback.
   }
@@ -243,8 +263,15 @@ class DriftServerController {
       return wasmServer;
     });
 
-    server.serve(message.port
-        .channel(explicitClose: message.protocolVersion >= ProtocolVersion.v1));
+    server.serve(
+      message.port.channel(
+        explicitClose: message.protocolVersion >= ProtocolVersion.v1,
+        webNativeSerialization: message.newSerialization,
+      ),
+      // With the new serialization mode, instruct the drift server not to apply
+      // its internal serialization logic.
+      !message.newSerialization,
+    );
   }
 
   /// Loads a new sqlite3 WASM module, registers an appropriate VFS for [storage]
@@ -297,7 +324,7 @@ class DriftServerController {
     );
 
     if (close != null) {
-      return db.interceptWith(_CloseVfsOnClose(close));
+      return db.interceptWith(_CloseVfsOnClose(db, close));
     } else {
       return db;
     }
@@ -308,7 +335,7 @@ class DriftServerController {
     final options = WasmVfs.createOptions(
       root: pathForOpfs(databaseName),
     );
-    final worker = Worker(Uri.base.toString());
+    final worker = Worker(Uri.base.toString().toJS);
 
     StartFileSystemServer(options).sendToWorker(worker);
 
@@ -321,13 +348,14 @@ class DriftServerController {
 
 class _CloseVfsOnClose extends QueryInterceptor {
   final FutureOr<void> Function() _close;
+  final QueryExecutor _root;
 
-  _CloseVfsOnClose(this._close);
+  _CloseVfsOnClose(this._root, this._close);
 
   @override
   Future<void> close(QueryExecutor inner) async {
     await inner.close();
-    if (inner is! TransactionExecutor) {
+    if (identical(_root, inner)) {
       await _close();
     }
   }
@@ -352,7 +380,7 @@ class RunningWasmServer {
   RunningWasmServer(this.storage, this.server);
 
   /// Tracks a new connection and serves drift database requests over it.
-  void serve(StreamChannel<Object?> channel) {
+  void serve(StreamChannel<Object?> channel, bool serialize) {
     _connectedClients++;
 
     server.serve(
@@ -365,6 +393,7 @@ class RunningWasmServer {
           sink.close();
         },
       )),
+      serialize: serialize,
     );
   }
 }
@@ -405,6 +434,9 @@ extension CompleteIdbRequest on IDBRequest {
       completer.complete(result as T);
     });
     EventStreamProviders.errorEvent.forTarget(this).listen((event) {
+      completer.completeError(error ?? event);
+    });
+    EventStreamProviders.blockedEvent.forTarget(this).listen((event) {
       completer.completeError(error ?? event);
     });
 

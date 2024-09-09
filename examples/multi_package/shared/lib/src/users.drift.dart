@@ -106,6 +106,13 @@ class User extends i0.DataClass implements i0.Insertable<i1.User> {
         id: id ?? this.id,
         name: name ?? this.name,
       );
+  User copyWithCompanion(i1.UsersCompanion data) {
+    return User(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('User(')
@@ -173,7 +180,7 @@ class UsersCompanion extends i0.UpdateCompanion<i1.User> {
   }
 }
 
-typedef $$UsersTableInsertCompanionBuilder = i1.UsersCompanion Function({
+typedef $$UsersTableCreateCompanionBuilder = i1.UsersCompanion Function({
   i0.Value<int> id,
   required String name,
 });
@@ -181,55 +188,6 @@ typedef $$UsersTableUpdateCompanionBuilder = i1.UsersCompanion Function({
   i0.Value<int> id,
   i0.Value<String> name,
 });
-
-class $$UsersTableTableManager extends i0.RootTableManager<
-    i0.GeneratedDatabase,
-    i1.$UsersTable,
-    i1.User,
-    i1.$$UsersTableFilterComposer,
-    i1.$$UsersTableOrderingComposer,
-    $$UsersTableProcessedTableManager,
-    $$UsersTableInsertCompanionBuilder,
-    $$UsersTableUpdateCompanionBuilder> {
-  $$UsersTableTableManager(i0.GeneratedDatabase db, i1.$UsersTable table)
-      : super(i0.TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              i1.$$UsersTableFilterComposer(i0.ComposerState(db, table)),
-          orderingComposer:
-              i1.$$UsersTableOrderingComposer(i0.ComposerState(db, table)),
-          getChildManagerBuilder: (p) => $$UsersTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            i0.Value<String> name = const i0.Value.absent(),
-          }) =>
-              i1.UsersCompanion(
-            id: id,
-            name: name,
-          ),
-          getInsertCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            required String name,
-          }) =>
-              i1.UsersCompanion.insert(
-            id: id,
-            name: name,
-          ),
-        ));
-}
-
-class $$UsersTableProcessedTableManager extends i0.ProcessedTableManager<
-    i0.GeneratedDatabase,
-    i1.$UsersTable,
-    i1.User,
-    i1.$$UsersTableFilterComposer,
-    i1.$$UsersTableOrderingComposer,
-    $$UsersTableProcessedTableManager,
-    $$UsersTableInsertCompanionBuilder,
-    $$UsersTableUpdateCompanionBuilder> {
-  $$UsersTableProcessedTableManager(super.$state);
-}
 
 class $$UsersTableFilterComposer
     extends i0.FilterComposer<i0.GeneratedDatabase, i1.$UsersTable> {
@@ -258,3 +216,57 @@ class $$UsersTableOrderingComposer
       builder: (column, joinBuilders) =>
           i0.ColumnOrderings(column, joinBuilders: joinBuilders));
 }
+
+class $$UsersTableTableManager extends i0.RootTableManager<
+    i0.GeneratedDatabase,
+    i1.$UsersTable,
+    i1.User,
+    i1.$$UsersTableFilterComposer,
+    i1.$$UsersTableOrderingComposer,
+    $$UsersTableCreateCompanionBuilder,
+    $$UsersTableUpdateCompanionBuilder,
+    (i1.User, i0.BaseReferences<i0.GeneratedDatabase, i1.$UsersTable, i1.User>),
+    i1.User,
+    i0.PrefetchHooks Function()> {
+  $$UsersTableTableManager(i0.GeneratedDatabase db, i1.$UsersTable table)
+      : super(i0.TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              i1.$$UsersTableFilterComposer(i0.ComposerState(db, table)),
+          orderingComposer:
+              i1.$$UsersTableOrderingComposer(i0.ComposerState(db, table)),
+          updateCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            i0.Value<String> name = const i0.Value.absent(),
+          }) =>
+              i1.UsersCompanion(
+            id: id,
+            name: name,
+          ),
+          createCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            required String name,
+          }) =>
+              i1.UsersCompanion.insert(
+            id: id,
+            name: name,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), i0.BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$UsersTableProcessedTableManager = i0.ProcessedTableManager<
+    i0.GeneratedDatabase,
+    i1.$UsersTable,
+    i1.User,
+    i1.$$UsersTableFilterComposer,
+    i1.$$UsersTableOrderingComposer,
+    $$UsersTableCreateCompanionBuilder,
+    $$UsersTableUpdateCompanionBuilder,
+    (i1.User, i0.BaseReferences<i0.GeneratedDatabase, i1.$UsersTable, i1.User>),
+    i1.User,
+    i0.PrefetchHooks Function()>;

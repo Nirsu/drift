@@ -1,3 +1,36 @@
+## 2.20.2
+
+- Strip leading numbers when generating modular accessor names for drift files,
+  fixing syntax errors.
+- Support triggers targeting views.
+- Include dialect-specific constraints in exported schema files.
+- Fix `schema export` not respecting column constraints of the target dialect.
+
+## 2.20.1
+
+- Fix a code generation bug causing managers to reference the wrong column when
+  building joins.
+
+## 2.20.0
+
+- Add `drift dev schema export` command, which exports the DDL statements making
+  up a database schema based on its definition in source.
+
+## 2.19.1
+
+- Fix `drift_dev schema dump` not working with older versions of the `analyzer`
+  package that are still supported by `drift_dev`.
+
+## 2.19.0
+
+- Fix generated `CREATE VIEW` statements containing existing row class syntax
+  only supposed to be used during static analysis.
+- Fix Dart views referencing the same column from different table aliases using
+  columns with the same name.
+- Fix `drift_dev schema steps` generating invalid code when no migrations have
+  been defined yet.
+- Fix generated imports for extension member references in modular mode.
+
 ## 2.18.0
 
 - Add support for the `geopoly` extension in drift files.

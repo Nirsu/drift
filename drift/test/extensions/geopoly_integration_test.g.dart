@@ -123,6 +123,13 @@ class GeopolyTestData extends DataClass implements Insertable<GeopolyTestData> {
         shape: shape.present ? shape.value : this.shape,
         a: a.present ? a.value : this.a,
       );
+  GeopolyTestData copyWithCompanion(GeopolyTestCompanion data) {
+    return GeopolyTestData(
+      shape: data.shape.present ? data.shape.value : this.shape,
+      a: data.a.present ? data.a.value : this.a,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('GeopolyTestData(')
@@ -206,8 +213,8 @@ class GeopolyTestCompanion extends UpdateCompanion<GeopolyTestData> {
 
 abstract class _$_GeopolyTestDatabase extends GeneratedDatabase {
   _$_GeopolyTestDatabase(QueryExecutor e) : super(e);
-  _$_GeopolyTestDatabaseManager get managers =>
-      _$_GeopolyTestDatabaseManager(this);
+  $_GeopolyTestDatabaseManager get managers =>
+      $_GeopolyTestDatabaseManager(this);
   late final GeopolyTest geopolyTest = GeopolyTest(this);
   Selectable<double?> area(int var1) {
     return customSelect(
@@ -227,7 +234,7 @@ abstract class _$_GeopolyTestDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [geopolyTest];
 }
 
-typedef $GeopolyTestInsertCompanionBuilder = GeopolyTestCompanion Function({
+typedef $GeopolyTestCreateCompanionBuilder = GeopolyTestCompanion Function({
   Value<GeopolyPolygon?> shape,
   Value<DriftAny?> a,
   Value<int> rowid,
@@ -237,59 +244,6 @@ typedef $GeopolyTestUpdateCompanionBuilder = GeopolyTestCompanion Function({
   Value<DriftAny?> a,
   Value<int> rowid,
 });
-
-class $GeopolyTestTableManager extends RootTableManager<
-    _$_GeopolyTestDatabase,
-    GeopolyTest,
-    GeopolyTestData,
-    $GeopolyTestFilterComposer,
-    $GeopolyTestOrderingComposer,
-    $GeopolyTestProcessedTableManager,
-    $GeopolyTestInsertCompanionBuilder,
-    $GeopolyTestUpdateCompanionBuilder> {
-  $GeopolyTestTableManager(_$_GeopolyTestDatabase db, GeopolyTest table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              $GeopolyTestFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $GeopolyTestOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) => $GeopolyTestProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            Value<GeopolyPolygon?> shape = const Value.absent(),
-            Value<DriftAny?> a = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              GeopolyTestCompanion(
-            shape: shape,
-            a: a,
-            rowid: rowid,
-          ),
-          getInsertCompanionBuilder: ({
-            Value<GeopolyPolygon?> shape = const Value.absent(),
-            Value<DriftAny?> a = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              GeopolyTestCompanion.insert(
-            shape: shape,
-            a: a,
-            rowid: rowid,
-          ),
-        ));
-}
-
-class $GeopolyTestProcessedTableManager extends ProcessedTableManager<
-    _$_GeopolyTestDatabase,
-    GeopolyTest,
-    GeopolyTestData,
-    $GeopolyTestFilterComposer,
-    $GeopolyTestOrderingComposer,
-    $GeopolyTestProcessedTableManager,
-    $GeopolyTestInsertCompanionBuilder,
-    $GeopolyTestUpdateCompanionBuilder> {
-  $GeopolyTestProcessedTableManager(super.$state);
-}
 
 class $GeopolyTestFilterComposer
     extends FilterComposer<_$_GeopolyTestDatabase, GeopolyTest> {
@@ -319,9 +273,73 @@ class $GeopolyTestOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
-class _$_GeopolyTestDatabaseManager {
+class $GeopolyTestTableManager extends RootTableManager<
+    _$_GeopolyTestDatabase,
+    GeopolyTest,
+    GeopolyTestData,
+    $GeopolyTestFilterComposer,
+    $GeopolyTestOrderingComposer,
+    $GeopolyTestCreateCompanionBuilder,
+    $GeopolyTestUpdateCompanionBuilder,
+    (
+      GeopolyTestData,
+      BaseReferences<_$_GeopolyTestDatabase, GeopolyTest, GeopolyTestData>
+    ),
+    GeopolyTestData,
+    PrefetchHooks Function()> {
+  $GeopolyTestTableManager(_$_GeopolyTestDatabase db, GeopolyTest table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $GeopolyTestFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $GeopolyTestOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<GeopolyPolygon?> shape = const Value.absent(),
+            Value<DriftAny?> a = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              GeopolyTestCompanion(
+            shape: shape,
+            a: a,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            Value<GeopolyPolygon?> shape = const Value.absent(),
+            Value<DriftAny?> a = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              GeopolyTestCompanion.insert(
+            shape: shape,
+            a: a,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $GeopolyTestProcessedTableManager = ProcessedTableManager<
+    _$_GeopolyTestDatabase,
+    GeopolyTest,
+    GeopolyTestData,
+    $GeopolyTestFilterComposer,
+    $GeopolyTestOrderingComposer,
+    $GeopolyTestCreateCompanionBuilder,
+    $GeopolyTestUpdateCompanionBuilder,
+    (
+      GeopolyTestData,
+      BaseReferences<_$_GeopolyTestDatabase, GeopolyTest, GeopolyTestData>
+    ),
+    GeopolyTestData,
+    PrefetchHooks Function()>;
+
+class $_GeopolyTestDatabaseManager {
   final _$_GeopolyTestDatabase _db;
-  _$_GeopolyTestDatabaseManager(this._db);
+  $_GeopolyTestDatabaseManager(this._db);
   $GeopolyTestTableManager get geopolyTest =>
       $GeopolyTestTableManager(_db, _db.geopolyTest);
 }

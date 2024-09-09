@@ -71,10 +71,11 @@ class ColumnFilters<T extends Object> extends _BaseColumnFilters<T> {
       ColumnFilters(column, inverted: !inverted, joinBuilders: joinBuilders);
 
   /// Create a filter that checks if the column equals a value.
-  ComposableFilter equals(T value) => $composableFilter(column.equals(value));
+  ComposableFilter equals(T? value) =>
+      $composableFilter(column.equalsNullable(value));
 
   /// Shortcut for [equals]
-  ComposableFilter call(T value) => equals(value);
+  ComposableFilter call(T? value) => equals(value);
 
   /// Create a filter that checks if the column is in a list of values.
   ComposableFilter isIn(Iterable<T> values) =>
@@ -143,7 +144,7 @@ extension StringFilters<T extends String> on ColumnFilters<String> {
   ///    to perform a case sensitive search, they can pass `caseInsensitive = false` manually
   ///
   /// We are using the default of {bool caseInsensitive = true}, so that users who haven't set
-  /// the database to be case sensitive wont be confues why their like expressions are case insensitive
+  /// the database to be case sensitive wont be confused why their like expressions are case insensitive
   Expression<bool> _buildExpression(
       _StringFilterTypes type, String value, bool caseInsensitive) {
     final Expression<String> column;
@@ -284,7 +285,14 @@ extension DateFilters<T extends DateTime> on ColumnFilters<T> {
       $composableFilter(column.isBetweenValues(lower, higher));
 }
 
-enum _BooleanOperator { and, or }
+///  Enum of the possible boolean operators
+enum _BooleanOperator {
+  /// Combine the existing filters to the new filter with an AND
+  and,
+
+  /// Combine the existing filters to the new filter with an OR
+  or;
+}
 
 /// This class is used to compose filters together
 ///

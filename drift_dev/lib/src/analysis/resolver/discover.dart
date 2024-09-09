@@ -73,7 +73,8 @@ class DiscoverStep {
           _file.discovery = NotADartLibrary();
           break;
         }
-        final finder = _FindDartElements(this, library, _driver.knownTypes);
+        final finder =
+            _FindDartElements(this, library, await _driver.knownTypes);
         await finder.find();
 
         _file.errorsDuringDiscovery.addAll(finder.errors);
@@ -283,9 +284,20 @@ class _FindDartElements extends RecursiveElementVisitor<void> {
       if (computed != null &&
           type != null &&
           _isTableIndex.isExactlyType(type)) {
+        final sql = computed.getField('createIndexStatement')?.toStringValue();
+        String? indexName;
+        if (sql != null) {
+          final engine = _discoverStep._driver.newSqlEngine();
+          final result = engine.parse(sql);
+          if (result.rootNode case CreateIndexStatement stmt) {
+            indexName = stmt.createdName;
+          }
+        }
+
         yield (
           annotation,
-          _discoverStep._id(computed.getField('name')?.toStringValue() ?? '')
+          _discoverStep._id(
+              indexName ?? computed.getField('name')?.toStringValue() ?? '')
         );
       }
     }
@@ -314,6 +326,7 @@ class _FindDartElements extends RecursiveElementVisitor<void> {
   Future<String> _sqlNameOfTable(ClassElement table) async {
     final defaultName = _defaultNameForTableOrView(table);
 
+    // ignore: deprecated_member_use
     final tableNameGetter = table.lookUpGetter('tableName', _library);
     if (tableNameGetter == null ||
         tableNameGetter.isFromDefaultTable ||

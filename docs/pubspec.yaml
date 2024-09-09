@@ -3,7 +3,7 @@ description: Documentation website for the drift project.
 publish_to: none
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   drift:
@@ -12,7 +12,7 @@ dependencies:
   json_annotation: ^4.8.1
   docsy:
     hosted: https://simonbinder.eu
-    version: ^0.2.3
+    version: ^0.2.4
   code_snippets:
     hosted: https://simonbinder.eu
     version: ^0.0.13
@@ -21,11 +21,9 @@ dependencies:
   sqlite3: ^2.0.0
   # Fake flutter packages for snippets
   path_provider:
-    path: assets/path_provider
   sqlite3_flutter_libs:
-    path: assets/sqlite3_flutter_libs
   sqlcipher_flutter_libs:
-    path: assets/sqlcipher_flutter_libs
+  drift_flutter:
   # Used in examples
   rxdart: ^0.27.3
   yaml: ^3.1.1
@@ -38,14 +36,14 @@ dependencies:
   postgres: ^3.0.0-0
 
 dev_dependencies:
-  lints: ^3.0.0
+  lints: ^4.0.0
   build: ^2.1.0
   build_runner: ^2.0.5
   build_runner_core: ^7.2.7
   build_web_compilers: ^4.0.0
   built_site:
     hosted: https://simonbinder.eu
-    version: ^0.2.16
+    version: ^0.2.17
   json_serializable: ^6.1.6
   shelf: ^1.2.0
   shelf_static: ^1.1.0
@@ -54,8 +52,19 @@ dev_dependencies:
   zap_dev: ^0.2.3+1
 
 dependency_overrides:
-  # todo: Remove after https://github.com/dart-lang/mime/pull/43
-  mime:
-    git:
-      url: https://github.com/simolus3/mime.git
-      ref: woff2
+  path_provider:
+    path: assets/path_provider
+  sqlite3_flutter_libs:
+    path: assets/sqlite3_flutter_libs
+  sqlcipher_flutter_libs:
+    path: assets/sqlcipher_flutter_libs
+  drift_flutter:
+    path: assets/drift_flutter
+  drift:
+    path: ../drift
+  drift_dev:
+    path: ../drift_dev
+  drift_postgres:
+    path: ../extras/drift_postgres
+  sqlparser:
+    path: ../sqlparser

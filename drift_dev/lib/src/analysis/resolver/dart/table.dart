@@ -57,6 +57,7 @@ class DartTableResolver extends LocalElementResolver<DiscoveredDartTable> {
       references: references.toList(),
       nameOfRowClass:
           dataClassInfo.enforcedName ?? dataClassNameForClassName(element.name),
+      interfacesForRowClass: dataClassInfo.interfaces,
       nameOfCompanionClass: dataClassInfo.companionName,
       existingRowClass: dataClassInfo.existingClass,
       customParentClass: dataClassInfo.extending,
@@ -73,11 +74,21 @@ class DartTableResolver extends LocalElementResolver<DiscoveredDartTable> {
       ],
     );
 
-    if (primaryKey != null &&
-        columns.any((c) => c.constraints.any((e) => e is PrimaryKeyColumn))) {
+    final columnsWithPrimaryKeyConstraint = columns
+        .where((c) => c.constraints.any((e) => e is PrimaryKeyColumn))
+        .length;
+    if (primaryKey != null && columnsWithPrimaryKeyConstraint > 0) {
       reportError(DriftAnalysisError.forDartElement(
         element,
         "Tables can't override primaryKey and use autoIncrement()",
+      ));
+    }
+
+    if (columnsWithPrimaryKeyConstraint > 1) {
+      reportError(DriftAnalysisError.forDartElement(
+        element,
+        'More than one column uses autoIncrement(). This would require '
+        'multiple primary keys, which is not supported.',
       ));
     }
 
@@ -118,6 +129,7 @@ class DartTableResolver extends LocalElementResolver<DiscoveredDartTable> {
   Future<Set<DriftColumn>?> _readPrimaryKey(
       ClassElement element, List<DriftColumn> columns) async {
     final primaryKeyGetter =
+        // ignore: deprecated_member_use
         element.lookUpGetter('primaryKey', element.library);
 
     if (primaryKeyGetter == null || primaryKeyGetter.isFromDefaultTable) {
@@ -164,6 +176,7 @@ class DartTableResolver extends LocalElementResolver<DiscoveredDartTable> {
 
   Future<List<Set<DriftColumn>>?> _readUniqueKeys(
       ClassElement element, List<DriftColumn> columns) async {
+    // ignore: deprecated_member_use
     final uniqueKeyGetter = element.lookUpGetter('uniqueKeys', element.library);
 
     if (uniqueKeyGetter == null || uniqueKeyGetter.isFromDefaultTable) {
@@ -221,6 +234,7 @@ class DartTableResolver extends LocalElementResolver<DiscoveredDartTable> {
   }
 
   Future<bool?> _overrideWithoutRowId(ClassElement element) async {
+    // ignore: deprecated_member_use
     final getter = element.lookUpGetter('withoutRowId', element.library);
 
     // Was the getter overridden at all?
@@ -260,6 +274,7 @@ class DartTableResolver extends LocalElementResolver<DiscoveredDartTable> {
     final fields = columnNames.map((name) {
       final getter = element.getGetter(name) ??
           element.lookUpInheritedConcreteGetter(name, element.library);
+      // ignore: deprecated_member_use
       return getter!.variable;
     });
     final results = <PendingColumnInformation>[];
@@ -284,6 +299,7 @@ class DartTableResolver extends LocalElementResolver<DiscoveredDartTable> {
   Future<List<String>> _readCustomConstraints(Set<DriftElement> references,
       List<DriftColumn> localColumns, ClassElement element) async {
     final customConstraints =
+        // ignore: deprecated_member_use
         element.lookUpGetter('customConstraints', element.library);
 
     if (customConstraints == null || customConstraints.isFromDefaultTable) {

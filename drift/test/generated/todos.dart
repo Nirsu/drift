@@ -1,6 +1,11 @@
 import 'package:drift/drift.dart';
-// ignore: import_of_legacy_library_into_null_safe
+import 'package:mockito/annotations.dart';
 import 'package:uuid/uuid.dart';
+
+// Generate mocks for drift
+@GenerateNiceMocks([MockSpec<TodoDb>()])
+// ignore: unused_import
+import 'todos.mocks.dart';
 
 part 'todos.g.dart';
 
@@ -24,7 +29,10 @@ class TodosTable extends Table with AutoIncrement {
   @JsonKey('target_date')
   DateTimeColumn get targetDate => dateTime().nullable().unique()();
   @ReferenceName("todos")
-  IntColumn get category => integer().references(Categories, #id).nullable()();
+  IntColumn get category => integer()
+      .references(Categories, #id, initiallyDeferred: true)
+      .map(TypeConverter.extensionType<RowId, int>())
+      .nullable()();
 
   TextColumn get status => textEnum<TodoStatus>().nullable()();
 
@@ -109,7 +117,7 @@ class Department extends Table {
 }
 
 class Product extends Table {
-  IntColumn get id => integer().autoIncrement()();
+  TextColumn get sku => text()();
   TextColumn get name => text().nullable()();
   IntColumn get department =>
       integer().references(Department, #id).nullable()();
@@ -118,7 +126,7 @@ class Product extends Table {
 class Listing extends Table {
   IntColumn get id => integer().autoIncrement()();
   @ReferenceName('listings')
-  IntColumn get product => integer().references(Product, #id).nullable()();
+  TextColumn get product => text().references(Product, #sku).nullable()();
   @ReferenceName('listings')
   IntColumn get store => integer().references(Store, #id).nullable()();
   RealColumn get price => real().nullable()();

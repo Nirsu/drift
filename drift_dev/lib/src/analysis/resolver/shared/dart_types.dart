@@ -145,6 +145,7 @@ ExistingRowClass? validateExistingClass(
 
     for (final column in columns) {
       final matchingField = dartClass.classElement
+          // ignore: deprecated_member_use
           .lookUpGetter(column.nameInDart, dartClass.classElement.library);
 
       if (matchingField == null) {
@@ -414,10 +415,7 @@ void _checkParameterType(
 
   final nullableDartType = column.nullableInDart;
 
-  if (library.isNonNullableByDefault &&
-      nullableDartType &&
-      !typesystem.isNullable(type) &&
-      element.isRequired) {
+  if (nullableDartType && !typesystem.isNullable(type) && element.isRequired) {
     error('Expected this parameter to be nullable');
     return;
   }
@@ -457,6 +455,7 @@ bool checkType(
 
   if (!typeSystem.isAssignableTo(expectedDartType, typeToCheck)) {
     error('Parameter must accept '
+        // ignore: deprecated_member_use
         '${expectedDartType.getDisplayString(withNullability: true)}');
     return false;
   }

@@ -1,3 +1,20 @@
+## 0.38.0
+
+- Resolve `json_extract` return types from context if possible.
+- Warn when `INSTEAD OF` triggers are not used on views.
+- Represent writes to views in `TableWrite`.
+
+## 0.37.1
+
+- Refine nullability analysis for subquery expressions: Queries with aggregate
+  invocations are no longer considered nullable (the aggregate invocation had
+  to be a top-level expression before).
+
+## 0.37.0
+
+- Add support for sqlite 3.46.0.
+- Make columns coming from subquery expressions nullable.
+
 ## 0.36.0
 
 - Add support for the geopoly module.

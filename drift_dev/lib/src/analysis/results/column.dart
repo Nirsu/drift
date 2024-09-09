@@ -1,4 +1,5 @@
 import 'package:analyzer/dart/element/type.dart';
+import 'package:drift/drift.dart' show SqlDialect;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:sqlparser/sqlparser.dart' show GeneratedAs, ReferenceAction;
 import 'package:sqlparser/utils/node_to_text.dart';
@@ -240,14 +241,20 @@ class ForeignKeyReference extends DriftColumnConstraint {
   final ReferenceAction? onUpdate;
   final ReferenceAction? onDelete;
 
-  ForeignKeyReference(this.otherColumn, this.onUpdate, this.onDelete);
+  /// Whether this foreign key reference was marked as deferrable and initially
+  /// deferred, meaning that it is only checked at the end of transactions.
+  final bool initiallyDeferred;
 
-  ForeignKeyReference.unresolved(this.onUpdate, this.onDelete);
+  ForeignKeyReference(
+      this.otherColumn, this.onUpdate, this.onDelete, this.initiallyDeferred);
+
+  ForeignKeyReference.unresolved(
+      this.onUpdate, this.onDelete, this.initiallyDeferred);
 
   @override
   String toString() {
     return 'ForeignKeyReference(to $otherColumn, onUpdate = $onUpdate, '
-        'onDelete = $onDelete)';
+        'onDelete = $onDelete, initially deferred = $initiallyDeferred)';
   }
 }
 
@@ -314,7 +321,11 @@ class LimitingTextLength extends DriftColumnConstraint {
 }
 
 class DefaultConstraintsFromSchemaFile extends DriftColumnConstraint {
-  final String constraints;
+  final String? forAllDialects;
+  final Map<SqlDialect, String> dialectSpecific;
 
-  DefaultConstraintsFromSchemaFile(this.constraints);
+  DefaultConstraintsFromSchemaFile(
+    this.forAllDialects, {
+    this.dialectSpecific = const {},
+  });
 }

@@ -103,6 +103,13 @@ class User extends DataClass implements Insertable<User> {
         id: id ?? this.id,
         name: name ?? this.name,
       );
+  User copyWithCompanion(UsersCompanion data) {
+    return User(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('User(')
@@ -183,8 +190,8 @@ class UsersCompanion extends UpdateCompanion<User> {
 
 abstract class _$DriftPostgresDatabase extends GeneratedDatabase {
   _$DriftPostgresDatabase(QueryExecutor e) : super(e);
-  _$DriftPostgresDatabaseManager get managers =>
-      _$DriftPostgresDatabaseManager(this);
+  $DriftPostgresDatabaseManager get managers =>
+      $DriftPostgresDatabaseManager(this);
   late final $UsersTable users = $UsersTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -193,7 +200,7 @@ abstract class _$DriftPostgresDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [users];
 }
 
-typedef $$UsersTableInsertCompanionBuilder = UsersCompanion Function({
+typedef $$UsersTableCreateCompanionBuilder = UsersCompanion Function({
   Value<UuidValue> id,
   required String name,
   Value<int> rowid,
@@ -203,59 +210,6 @@ typedef $$UsersTableUpdateCompanionBuilder = UsersCompanion Function({
   Value<String> name,
   Value<int> rowid,
 });
-
-class $$UsersTableTableManager extends RootTableManager<
-    _$DriftPostgresDatabase,
-    $UsersTable,
-    User,
-    $$UsersTableFilterComposer,
-    $$UsersTableOrderingComposer,
-    $$UsersTableProcessedTableManager,
-    $$UsersTableInsertCompanionBuilder,
-    $$UsersTableUpdateCompanionBuilder> {
-  $$UsersTableTableManager(_$DriftPostgresDatabase db, $UsersTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              $$UsersTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$UsersTableOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) => $$UsersTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            Value<UuidValue> id = const Value.absent(),
-            Value<String> name = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              UsersCompanion(
-            id: id,
-            name: name,
-            rowid: rowid,
-          ),
-          getInsertCompanionBuilder: ({
-            Value<UuidValue> id = const Value.absent(),
-            required String name,
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              UsersCompanion.insert(
-            id: id,
-            name: name,
-            rowid: rowid,
-          ),
-        ));
-}
-
-class $$UsersTableProcessedTableManager extends ProcessedTableManager<
-    _$DriftPostgresDatabase,
-    $UsersTable,
-    User,
-    $$UsersTableFilterComposer,
-    $$UsersTableOrderingComposer,
-    $$UsersTableProcessedTableManager,
-    $$UsersTableInsertCompanionBuilder,
-    $$UsersTableUpdateCompanionBuilder> {
-  $$UsersTableProcessedTableManager(super.$state);
-}
 
 class $$UsersTableFilterComposer
     extends FilterComposer<_$DriftPostgresDatabase, $UsersTable> {
@@ -285,9 +239,67 @@ class $$UsersTableOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
-class _$DriftPostgresDatabaseManager {
+class $$UsersTableTableManager extends RootTableManager<
+    _$DriftPostgresDatabase,
+    $UsersTable,
+    User,
+    $$UsersTableFilterComposer,
+    $$UsersTableOrderingComposer,
+    $$UsersTableCreateCompanionBuilder,
+    $$UsersTableUpdateCompanionBuilder,
+    (User, BaseReferences<_$DriftPostgresDatabase, $UsersTable, User>),
+    User,
+    PrefetchHooks Function()> {
+  $$UsersTableTableManager(_$DriftPostgresDatabase db, $UsersTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$UsersTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$UsersTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<UuidValue> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UsersCompanion(
+            id: id,
+            name: name,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            Value<UuidValue> id = const Value.absent(),
+            required String name,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UsersCompanion.insert(
+            id: id,
+            name: name,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$UsersTableProcessedTableManager = ProcessedTableManager<
+    _$DriftPostgresDatabase,
+    $UsersTable,
+    User,
+    $$UsersTableFilterComposer,
+    $$UsersTableOrderingComposer,
+    $$UsersTableCreateCompanionBuilder,
+    $$UsersTableUpdateCompanionBuilder,
+    (User, BaseReferences<_$DriftPostgresDatabase, $UsersTable, User>),
+    User,
+    PrefetchHooks Function()>;
+
+class $DriftPostgresDatabaseManager {
   final _$DriftPostgresDatabase _db;
-  _$DriftPostgresDatabaseManager(this._db);
+  $DriftPostgresDatabaseManager(this._db);
   $$UsersTableTableManager get users =>
       $$UsersTableTableManager(_db, _db.users);
 }

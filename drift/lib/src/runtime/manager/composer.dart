@@ -38,7 +38,7 @@ class ComposerState<Database extends GeneratedDatabase,
           .map((e) => e.$state.allJoinBuilders())
           .expand((element) => element),
       joinBuilder,
-    ].whereNotNull().toSet();
+    ].nonNulls.toSet();
   }
 
   /// A helper method for creating objects that need that require
@@ -83,8 +83,7 @@ class ComposerState<Database extends GeneratedDatabase,
 
     // Use the provided callbacks to create a join builder
     final referencedColumn = getReferencedColumn(referencedTable);
-    final aliasName =
-        '${aliasedColumn.tableName}__${aliasedColumn.name}__${referencedColumn.tableName}__${referencedColumn.name}';
+    final aliasName = $_aliasNameGenerator(aliasedColumn, referencedColumn);
     final aliasedReferencedTable =
         db.alias(referencedTable as TableInfo, aliasName);
     final aliasedReferencedColumn =

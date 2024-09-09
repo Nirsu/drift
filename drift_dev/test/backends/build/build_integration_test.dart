@@ -798,6 +798,327 @@ CREATE TABLE [STRING_TABLE](
     );
   });
 
+  test('escapes module accessorss for leading numerics', () async {
+    final result = await emulateDriftBuild(
+      inputs: {
+        'a|lib/001_main.drift': '''
+CREATE TABLE foo (bar INTEGER PRIMARY KEY);
+
+getFoo: SELECT * FROM foo WHERE bar = ?;
+''',
+        'a|lib/database.dart': r'''
+import 'package:drift/drift.dart';
+
+import 'database.drift.dart';
+import '001_main.drift.dart';
+
+@DriftDatabase(include: {'001_main.drift'})
+class MyDatabase extends _$MyDatabase {}
+''',
+      },
+      modularBuild: true,
+      logger: loggerThat(neverEmits(anything)),
+    );
+
+    checkOutputs({
+      'a|lib/001_main.drift.dart': decodedMatches(
+        contains('class MainDrift extends i2.ModularAccessor'),
+      ),
+      'a|lib/database.drift.dart': decodedMatches(
+        contains('i1.MainDrift get mainDrift'),
+      ),
+    }, result.dartOutputs, result.writer);
+  });
+
+  group('generates view triggers', timeout: Timeout.none, () {
+    const options = BuilderOptions(
+      {
+        'sql': {
+          'options': {'version': '3.35'}
+        }
+      },
+    );
+
+    test('for create', () async {
+      final result = await emulateDriftBuild(
+        inputs: {
+          'a|lib/a.drift': '''
+CREATE TABLE foo(id INTEGER PRIMARY KEY, name TEXT);
+CREATE VIEW foo_view AS SELECT * FROM foo;
+
+CREATE TRIGGER foo_create
+INSTEAD OF INSERT ON foo_view
+BEGIN
+  INSERT INTO foo VALUES (new.id, new.name);
+END;
+
+createFoo: INSERT INTO foo_view DEFAULT VALUES RETURNING *;
+''',
+          'a|lib/database.dart': '''
+import 'package:drift/drift.dart';
+
+part 'database.g.dart';
+
+@DriftDatabase(include: {'a.drift'})
+class MyDatabase extends _\$MyDatabase {}
+''',
+        },
+        modularBuild: false,
+        logger: loggerThat(neverEmits(anything)),
+        options: options,
+      );
+
+      checkOutputs(
+        {
+          'a|lib/database.drift.dart': decodedMatches(
+            allOf([
+              contains('FooView fooView = FooView(this)'),
+              stringContainsInOrder([
+                'Future<List<FooViewData>> createFoo()',
+                'then((rows) => Future.wait(rows.map(fooView.mapFromRow)))',
+              ]),
+              contains('Trigger fooCreate'),
+            ]),
+          ),
+        },
+        result.dartOutputs,
+        result.writer,
+      );
+    });
+
+    test('for create (modular)', () async {
+      final result = await emulateDriftBuild(
+        inputs: {
+          'a|lib/a.drift': '''
+CREATE TABLE foo(id INTEGER PRIMARY KEY, name TEXT);
+CREATE VIEW foo_view AS SELECT * FROM foo;
+
+CREATE TRIGGER foo_create
+INSTEAD OF INSERT ON foo_view
+BEGIN
+  INSERT INTO foo VALUES (new.id, new.name);
+END;
+
+createFoo: INSERT INTO foo_view DEFAULT VALUES RETURNING *;
+''',
+          'a|lib/database.dart': '''
+import 'package:drift/drift.dart';
+
+import 'a.drift.dart';
+import 'database.drift.dart';
+
+@DriftDatabase(include: {'a.drift'})
+class MyDatabase extends \$MyDatabase {}
+''',
+        },
+        modularBuild: true,
+        logger: loggerThat(neverEmits(anything)),
+        options: options,
+      );
+
+      checkOutputs(
+        {
+          'a|lib/database.drift.dart': decodedMatches(contains(
+            'i1.FooView fooView = i1.FooView(this)',
+          )),
+          'a|lib/a.drift.dart': decodedMatches(allOf([
+            contains('i0.Trigger get fooCreate'),
+            stringContainsInOrder([
+              'Future<List<i1.FooViewData>> createFoo()',
+              'then((rows) => Future.wait(rows.map(fooView.mapFromRow)))',
+            ]),
+          ])),
+        },
+        result.dartOutputs,
+        result.writer,
+      );
+    });
+
+    test('for update', () async {
+      final result = await emulateDriftBuild(
+        inputs: {
+          'a|lib/a.drift': '''
+CREATE TABLE foo(id INTEGER PRIMARY KEY, name TEXT);
+CREATE VIEW foo_view AS SELECT * FROM foo;
+
+CREATE TRIGGER foo_update
+INSTEAD OF UPDATE ON foo_view
+BEGIN
+  UPDATE foo SET name = new.name WHERE id = new.id;
+END;
+
+updateFoo: UPDATE foo_view SET name = '' WHERE id = :id RETURNING *;
+''',
+          'a|lib/database.dart': '''
+import 'package:drift/drift.dart';
+
+part 'database.g.dart';
+
+@DriftDatabase(include: {'a.drift'})
+class MyDatabase extends _\$MyDatabase {}
+''',
+        },
+        modularBuild: false,
+        logger: loggerThat(neverEmits(anything)),
+        options: options,
+      );
+
+      checkOutputs(
+        {
+          'a|lib/database.drift.dart': decodedMatches(
+            allOf([
+              contains('FooView fooView = FooView(this)'),
+              stringContainsInOrder([
+                'Future<List<FooViewData>> updateFoo(int id)',
+                'then((rows) => Future.wait(rows.map(fooView.mapFromRow)))',
+              ]),
+              contains('Trigger fooUpdate'),
+            ]),
+          ),
+        },
+        result.dartOutputs,
+        result.writer,
+      );
+    });
+
+    test('for update (modular)', () async {
+      final result = await emulateDriftBuild(
+        inputs: {
+          'a|lib/a.drift': '''
+CREATE TABLE foo(id INTEGER PRIMARY KEY, name TEXT);
+CREATE VIEW foo_view AS SELECT * FROM foo;
+
+CREATE TRIGGER foo_update
+INSTEAD OF UPDATE ON foo_view
+BEGIN
+  UPDATE foo SET name = new.name WHERE id = new.id;
+END;
+
+updateFoo: UPDATE foo_view SET name = '' WHERE id = :id RETURNING *;
+''',
+          'a|lib/database.dart': '''
+import 'package:drift/drift.dart';
+
+import 'a.drift.dart';
+import 'database.drift.dart';
+
+@DriftDatabase(include: {'a.drift'})
+class MyDatabase extends \$MyDatabase {}
+''',
+        },
+        modularBuild: true,
+        logger: loggerThat(neverEmits(anything)),
+        options: options,
+      );
+
+      checkOutputs(
+        {
+          'a|lib/database.drift.dart': decodedMatches(contains(
+            'i1.FooView fooView = i1.FooView(this)',
+          )),
+          'a|lib/a.drift.dart': decodedMatches(allOf([
+            contains('i0.Trigger get fooUpdate'),
+            stringContainsInOrder([
+              'Future<List<i1.FooViewData>> updateFoo(int id)',
+              'then((rows) => Future.wait(rows.map(fooView.mapFromRow)))',
+            ]),
+          ])),
+        },
+        result.dartOutputs,
+        result.writer,
+      );
+    });
+
+    test('for delete', () async {
+      final result = await emulateDriftBuild(
+        inputs: {
+          'a|lib/a.drift': '''
+CREATE TABLE foo(id INTEGER PRIMARY KEY, name TEXT);
+CREATE VIEW foo_view AS SELECT * FROM foo;
+
+CREATE TRIGGER foo_delete
+INSTEAD OF DELETE ON foo_view
+BEGIN
+  DELETE FROM foo WHERE id = old.id;
+END;
+
+deleteFoo: DELETE FROM foo_view WHERE id = :id;
+''',
+          'a|lib/database.dart': '''
+import 'package:drift/drift.dart';
+
+part 'database.g.dart';
+
+@DriftDatabase(include: {'a.drift'})
+class MyDatabase extends _\$MyDatabase {}
+''',
+        },
+        modularBuild: false,
+        logger: loggerThat(neverEmits(anything)),
+        options: options,
+      );
+
+      checkOutputs(
+        {
+          'a|lib/database.drift.dart': decodedMatches(
+            allOf([
+              contains('FooView fooView = FooView(this)'),
+              contains('Future<int> deleteFoo(int id)'),
+              contains('Trigger fooDelete'),
+            ]),
+          ),
+        },
+        result.dartOutputs,
+        result.writer,
+      );
+    });
+
+    test('for delete (modular)', () async {
+      final result = await emulateDriftBuild(
+        inputs: {
+          'a|lib/a.drift': '''
+CREATE TABLE foo(id INTEGER PRIMARY KEY, name TEXT);
+CREATE VIEW foo_view AS SELECT * FROM foo;
+
+CREATE TRIGGER foo_delete
+INSTEAD OF DELETE ON foo_view
+BEGIN
+  DELETE FROM foo WHERE id = old.id;
+END;
+
+deleteFoo: DELETE FROM foo_view WHERE id = :id;
+''',
+          'a|lib/database.dart': '''
+import 'package:drift/drift.dart';
+
+import 'a.drift.dart';
+import 'database.drift.dart';
+
+@DriftDatabase(include: {'a.drift'})
+class MyDatabase extends \$MyDatabase {}
+''',
+        },
+        modularBuild: true,
+        logger: loggerThat(neverEmits(anything)),
+        options: options,
+      );
+
+      checkOutputs(
+        {
+          'a|lib/database.drift.dart': decodedMatches(contains(
+            'i1.FooView fooView = i1.FooView(this)',
+          )),
+          'a|lib/a.drift.dart': decodedMatches(allOf([
+            contains('i0.Trigger get fooDelete'),
+            contains('Future<int> deleteFoo(int id)'),
+          ])),
+        },
+        result.dartOutputs,
+        result.writer,
+      );
+    });
+  });
+
   group('reports issues', () {
     for (final fatalWarnings in [false, true]) {
       group('fatalWarnings: $fatalWarnings', () {

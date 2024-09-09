@@ -107,6 +107,13 @@ class Word extends i0.DataClass implements i0.Insertable<i1.Word> {
         word: word ?? this.word,
         usages: usages ?? this.usages,
       );
+  Word copyWithCompanion(i1.WordsCompanion data) {
+    return Word(
+      word: data.word.present ? data.word.value : this.word,
+      usages: data.usages.present ? data.usages.value : this.usages,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('Word(')
@@ -187,7 +194,7 @@ class WordsCompanion extends i0.UpdateCompanion<i1.Word> {
   }
 }
 
-typedef $$WordsTableInsertCompanionBuilder = i1.WordsCompanion Function({
+typedef $$WordsTableCreateCompanionBuilder = i1.WordsCompanion Function({
   required String word,
   i0.Value<int> usages,
   i0.Value<int> rowid,
@@ -197,59 +204,6 @@ typedef $$WordsTableUpdateCompanionBuilder = i1.WordsCompanion Function({
   i0.Value<int> usages,
   i0.Value<int> rowid,
 });
-
-class $$WordsTableTableManager extends i0.RootTableManager<
-    i0.GeneratedDatabase,
-    i1.$WordsTable,
-    i1.Word,
-    i1.$$WordsTableFilterComposer,
-    i1.$$WordsTableOrderingComposer,
-    $$WordsTableProcessedTableManager,
-    $$WordsTableInsertCompanionBuilder,
-    $$WordsTableUpdateCompanionBuilder> {
-  $$WordsTableTableManager(i0.GeneratedDatabase db, i1.$WordsTable table)
-      : super(i0.TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              i1.$$WordsTableFilterComposer(i0.ComposerState(db, table)),
-          orderingComposer:
-              i1.$$WordsTableOrderingComposer(i0.ComposerState(db, table)),
-          getChildManagerBuilder: (p) => $$WordsTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            i0.Value<String> word = const i0.Value.absent(),
-            i0.Value<int> usages = const i0.Value.absent(),
-            i0.Value<int> rowid = const i0.Value.absent(),
-          }) =>
-              i1.WordsCompanion(
-            word: word,
-            usages: usages,
-            rowid: rowid,
-          ),
-          getInsertCompanionBuilder: ({
-            required String word,
-            i0.Value<int> usages = const i0.Value.absent(),
-            i0.Value<int> rowid = const i0.Value.absent(),
-          }) =>
-              i1.WordsCompanion.insert(
-            word: word,
-            usages: usages,
-            rowid: rowid,
-          ),
-        ));
-}
-
-class $$WordsTableProcessedTableManager extends i0.ProcessedTableManager<
-    i0.GeneratedDatabase,
-    i1.$WordsTable,
-    i1.Word,
-    i1.$$WordsTableFilterComposer,
-    i1.$$WordsTableOrderingComposer,
-    $$WordsTableProcessedTableManager,
-    $$WordsTableInsertCompanionBuilder,
-    $$WordsTableUpdateCompanionBuilder> {
-  $$WordsTableProcessedTableManager(super.$state);
-}
 
 class $$WordsTableFilterComposer
     extends i0.FilterComposer<i0.GeneratedDatabase, i1.$WordsTable> {
@@ -278,6 +232,64 @@ class $$WordsTableOrderingComposer
       builder: (column, joinBuilders) =>
           i0.ColumnOrderings(column, joinBuilders: joinBuilders));
 }
+
+class $$WordsTableTableManager extends i0.RootTableManager<
+    i0.GeneratedDatabase,
+    i1.$WordsTable,
+    i1.Word,
+    i1.$$WordsTableFilterComposer,
+    i1.$$WordsTableOrderingComposer,
+    $$WordsTableCreateCompanionBuilder,
+    $$WordsTableUpdateCompanionBuilder,
+    (i1.Word, i0.BaseReferences<i0.GeneratedDatabase, i1.$WordsTable, i1.Word>),
+    i1.Word,
+    i0.PrefetchHooks Function()> {
+  $$WordsTableTableManager(i0.GeneratedDatabase db, i1.$WordsTable table)
+      : super(i0.TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              i1.$$WordsTableFilterComposer(i0.ComposerState(db, table)),
+          orderingComposer:
+              i1.$$WordsTableOrderingComposer(i0.ComposerState(db, table)),
+          updateCompanionCallback: ({
+            i0.Value<String> word = const i0.Value.absent(),
+            i0.Value<int> usages = const i0.Value.absent(),
+            i0.Value<int> rowid = const i0.Value.absent(),
+          }) =>
+              i1.WordsCompanion(
+            word: word,
+            usages: usages,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String word,
+            i0.Value<int> usages = const i0.Value.absent(),
+            i0.Value<int> rowid = const i0.Value.absent(),
+          }) =>
+              i1.WordsCompanion.insert(
+            word: word,
+            usages: usages,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), i0.BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$WordsTableProcessedTableManager = i0.ProcessedTableManager<
+    i0.GeneratedDatabase,
+    i1.$WordsTable,
+    i1.Word,
+    i1.$$WordsTableFilterComposer,
+    i1.$$WordsTableOrderingComposer,
+    $$WordsTableCreateCompanionBuilder,
+    $$WordsTableUpdateCompanionBuilder,
+    (i1.Word, i0.BaseReferences<i0.GeneratedDatabase, i1.$WordsTable, i1.Word>),
+    i1.Word,
+    i0.PrefetchHooks Function()>;
 
 class $MatchResultsTable extends i2.MatchResults
     with i0.TableInfo<$MatchResultsTable, i1.MatchResult> {
@@ -438,6 +450,15 @@ class MatchResult extends i0.DataClass
         teamB: teamB ?? this.teamB,
         teamAWon: teamAWon ?? this.teamAWon,
       );
+  MatchResult copyWithCompanion(i1.MatchResultsCompanion data) {
+    return MatchResult(
+      id: data.id.present ? data.id.value : this.id,
+      teamA: data.teamA.present ? data.teamA.value : this.teamA,
+      teamB: data.teamB.present ? data.teamB.value : this.teamB,
+      teamAWon: data.teamAWon.present ? data.teamAWon.value : this.teamAWon,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('MatchResult(')
@@ -537,7 +558,7 @@ class MatchResultsCompanion extends i0.UpdateCompanion<i1.MatchResult> {
   }
 }
 
-typedef $$MatchResultsTableInsertCompanionBuilder = i1.MatchResultsCompanion
+typedef $$MatchResultsTableCreateCompanionBuilder = i1.MatchResultsCompanion
     Function({
   i0.Value<int> id,
   required String teamA,
@@ -551,65 +572,6 @@ typedef $$MatchResultsTableUpdateCompanionBuilder = i1.MatchResultsCompanion
   i0.Value<String> teamB,
   i0.Value<bool> teamAWon,
 });
-
-class $$MatchResultsTableTableManager extends i0.RootTableManager<
-    i0.GeneratedDatabase,
-    i1.$MatchResultsTable,
-    i1.MatchResult,
-    i1.$$MatchResultsTableFilterComposer,
-    i1.$$MatchResultsTableOrderingComposer,
-    $$MatchResultsTableProcessedTableManager,
-    $$MatchResultsTableInsertCompanionBuilder,
-    $$MatchResultsTableUpdateCompanionBuilder> {
-  $$MatchResultsTableTableManager(
-      i0.GeneratedDatabase db, i1.$MatchResultsTable table)
-      : super(i0.TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              i1.$$MatchResultsTableFilterComposer(i0.ComposerState(db, table)),
-          orderingComposer: i1
-              .$$MatchResultsTableOrderingComposer(i0.ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$MatchResultsTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            i0.Value<String> teamA = const i0.Value.absent(),
-            i0.Value<String> teamB = const i0.Value.absent(),
-            i0.Value<bool> teamAWon = const i0.Value.absent(),
-          }) =>
-              i1.MatchResultsCompanion(
-            id: id,
-            teamA: teamA,
-            teamB: teamB,
-            teamAWon: teamAWon,
-          ),
-          getInsertCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            required String teamA,
-            required String teamB,
-            required bool teamAWon,
-          }) =>
-              i1.MatchResultsCompanion.insert(
-            id: id,
-            teamA: teamA,
-            teamB: teamB,
-            teamAWon: teamAWon,
-          ),
-        ));
-}
-
-class $$MatchResultsTableProcessedTableManager extends i0.ProcessedTableManager<
-    i0.GeneratedDatabase,
-    i1.$MatchResultsTable,
-    i1.MatchResult,
-    i1.$$MatchResultsTableFilterComposer,
-    i1.$$MatchResultsTableOrderingComposer,
-    $$MatchResultsTableProcessedTableManager,
-    $$MatchResultsTableInsertCompanionBuilder,
-    $$MatchResultsTableUpdateCompanionBuilder> {
-  $$MatchResultsTableProcessedTableManager(super.$state);
-}
 
 class $$MatchResultsTableFilterComposer
     extends i0.FilterComposer<i0.GeneratedDatabase, i1.$MatchResultsTable> {
@@ -658,3 +620,74 @@ class $$MatchResultsTableOrderingComposer
       builder: (column, joinBuilders) =>
           i0.ColumnOrderings(column, joinBuilders: joinBuilders));
 }
+
+class $$MatchResultsTableTableManager extends i0.RootTableManager<
+    i0.GeneratedDatabase,
+    i1.$MatchResultsTable,
+    i1.MatchResult,
+    i1.$$MatchResultsTableFilterComposer,
+    i1.$$MatchResultsTableOrderingComposer,
+    $$MatchResultsTableCreateCompanionBuilder,
+    $$MatchResultsTableUpdateCompanionBuilder,
+    (
+      i1.MatchResult,
+      i0.BaseReferences<i0.GeneratedDatabase, i1.$MatchResultsTable,
+          i1.MatchResult>
+    ),
+    i1.MatchResult,
+    i0.PrefetchHooks Function()> {
+  $$MatchResultsTableTableManager(
+      i0.GeneratedDatabase db, i1.$MatchResultsTable table)
+      : super(i0.TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              i1.$$MatchResultsTableFilterComposer(i0.ComposerState(db, table)),
+          orderingComposer: i1
+              .$$MatchResultsTableOrderingComposer(i0.ComposerState(db, table)),
+          updateCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            i0.Value<String> teamA = const i0.Value.absent(),
+            i0.Value<String> teamB = const i0.Value.absent(),
+            i0.Value<bool> teamAWon = const i0.Value.absent(),
+          }) =>
+              i1.MatchResultsCompanion(
+            id: id,
+            teamA: teamA,
+            teamB: teamB,
+            teamAWon: teamAWon,
+          ),
+          createCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            required String teamA,
+            required String teamB,
+            required bool teamAWon,
+          }) =>
+              i1.MatchResultsCompanion.insert(
+            id: id,
+            teamA: teamA,
+            teamB: teamB,
+            teamAWon: teamAWon,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), i0.BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MatchResultsTableProcessedTableManager = i0.ProcessedTableManager<
+    i0.GeneratedDatabase,
+    i1.$MatchResultsTable,
+    i1.MatchResult,
+    i1.$$MatchResultsTableFilterComposer,
+    i1.$$MatchResultsTableOrderingComposer,
+    $$MatchResultsTableCreateCompanionBuilder,
+    $$MatchResultsTableUpdateCompanionBuilder,
+    (
+      i1.MatchResult,
+      i0.BaseReferences<i0.GeneratedDatabase, i1.$MatchResultsTable,
+          i1.MatchResult>
+    ),
+    i1.MatchResult,
+    i0.PrefetchHooks Function()>;

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:drift_dev/src/cli/project.dart';
 import 'package:logging/logging.dart';
+import 'package:path/path.dart' as p;
 
 import '../backends/analyzer_context_backend.dart';
 import 'commands/analyze.dart';
@@ -24,7 +25,7 @@ Future run(List<String> args) async {
 class DriftDevCli {
   Logger get logger => Logger.root;
   late final CommandRunner _runner;
-  late final MoorProject project;
+  late final DriftProject project;
 
   bool verbose = false;
 
@@ -49,10 +50,10 @@ class DriftDevCli {
     );
   }
 
-  Future<PhysicalDriftDriver> createMoorDriver() async {
+  Future<PhysicalDriftDriver> createAnalysisDriver() async {
     return AnalysisContextBackend.createDriver(
-      options: project.moorOptions,
-      projectDirectory: project.directory.path,
+      options: project.options,
+      projectDirectory: p.normalize(project.directory.path),
     );
   }
 
@@ -61,7 +62,7 @@ class DriftDevCli {
     verbose = results['verbose'] as bool;
 
     setupLogging(verbose: verbose);
-    project = await MoorProject.readFromDir(Directory.current);
+    project = await DriftProject.readFromDir(Directory.current);
 
     await _runner.runCommand(results);
   }
@@ -71,10 +72,10 @@ class DriftDevCli {
   }
 }
 
-abstract class MoorCommand extends Command {
+abstract class DriftCommand extends Command {
   final DriftDevCli cli;
 
-  MoorCommand(this.cli);
+  DriftCommand(this.cli);
 }
 
 class FatalToolError implements Exception {

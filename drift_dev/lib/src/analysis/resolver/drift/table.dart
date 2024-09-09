@@ -40,10 +40,11 @@ class DriftTableResolver extends DriftElementResolver<DiscoveredDriftTable> {
 
     final columns = <DriftColumn>[];
     final tableConstraints = <DriftTableConstraint>[];
+    final typeMapping = await resolver.driver.typeMapping;
 
     for (final column in table.resultColumns) {
       String? overriddenDartName;
-      var type = resolver.driver.typeMapping.sqlTypeToDrift(column.type);
+      var type = typeMapping.sqlTypeToDrift(column.type);
       final nullable = column.type.nullable != false;
       final constraints = <DriftColumnConstraint>[];
       AppliedTypeConverter? converter;
@@ -77,7 +78,7 @@ class DriftTableResolver extends DriftElementResolver<DiscoveredDriftTable> {
               type.builtin == DriftSqlType.int
                   ? EnumType.intEnum
                   : EnumType.textEnum,
-              resolver.driver.knownTypes,
+              await resolver.driver.knownTypes,
             );
           }
         }
@@ -138,6 +139,8 @@ class DriftTableResolver extends DriftElementResolver<DiscoveredDriftTable> {
                   targetColumn,
                   constraint.clause.onUpdate,
                   constraint.clause.onDelete,
+                  constraint.clause.effectiveDeferrableMode ==
+                      InitialDeferrableMode.deferred,
                 ));
               }
             }
@@ -218,6 +221,8 @@ class DriftTableResolver extends DriftElementResolver<DiscoveredDriftTable> {
               otherColumns: foreignColumns,
               onUpdate: constraint.clause.onUpdate,
               onDelete: constraint.clause.onDelete,
+              initiallyDeferred: constraint.clause.effectiveDeferrableMode ==
+                  InitialDeferrableMode.deferred,
             ));
           }
         } else if (constraint is KeyClause) {
@@ -255,8 +260,7 @@ class DriftTableResolver extends DriftElementResolver<DiscoveredDriftTable> {
 
         if (contentTable != null) {
           references.add(contentTable);
-          final parserContentTable =
-              resolver.driver.typeMapping.asSqlParserTable(contentTable);
+          final parserContentTable = typeMapping.asSqlParserTable(contentTable);
           final rowId = parserContentTable.findColumn(table.contentRowId!);
 
           if (rowId == null) {
@@ -343,8 +347,8 @@ class DriftTableResolver extends DriftElementResolver<DiscoveredDriftTable> {
 
     // Run drift-specific lints on the `CREATE TABLE` statement, which requires
     // having the resolved table structure first.
-    final engineForAnalysis = resolver.driver.typeMapping
-        .newEngineWithTables([driftTable, ...driftTable.references]);
+    final engineForAnalysis =
+        typeMapping.newEngineWithTables([driftTable, ...driftTable.references]);
     final source = (file.discovery as DiscoveredDriftFile).originalSource;
     final context = engineForAnalysis.analyzeNode(stmt, source);
     final linter = DriftSqlLinter(context, references: references)

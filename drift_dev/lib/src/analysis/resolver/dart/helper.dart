@@ -1,3 +1,4 @@
+import 'package:analyzer/dart/analysis/session.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
@@ -102,6 +103,15 @@ class KnownDriftTypes {
     return type?.asInstanceOf(converter);
   }
 
+  bool get isStillConsistent {
+    try {
+      helperLibrary.session.getParsedLibraryByElement(helperLibrary);
+      return true;
+    } on InconsistentAnalysisException {
+      return false;
+    }
+  }
+
   static Future<KnownDriftTypes?> resolve(DriftBackend backend) async {
     if (backend.canReadDart) {
       final library = await backend.readDart(uri);
@@ -191,15 +201,17 @@ extension TypeUtils on DartType {
     return $this is InterfaceType ? $this.element.name : null;
   }
 
+// ignore: deprecated_member_use
   String get userVisibleName => getDisplayString(withNullability: true);
 
   /// How this type should look like in generated code.
   String codeString() {
     if (nullabilitySuffix == NullabilitySuffix.star) {
       // We can't actually use the legacy star in code, so don't show it.
-      return getDisplayString(withNullability: false);
+      // ignore: deprecated_member_use
+      return getDisplayString(withNullability: true);
     }
-
+// ignore: deprecated_member_use
     return getDisplayString(withNullability: true);
   }
 }
@@ -209,12 +221,14 @@ class DataClassInformation {
   final String? companionName;
   final CustomParentClass? extending;
   final ExistingRowClass? existingClass;
+  final List<AnnotatedDartCode> interfaces;
 
   DataClassInformation(
     this.enforcedName,
     this.companionName,
     this.extending,
     this.existingClass,
+    this.interfaces,
   );
 
   static Future<DataClassInformation> resolve(
@@ -248,10 +262,20 @@ class DataClassInformation {
         dataClassName?.getField('companionName')?.toStringValue();
     CustomParentClass? customParentClass;
     ExistingRowClass? existingClass;
+    List<AnnotatedDartCode> implementedInterfaces = const [];
 
     if (dataClassName != null) {
       customParentClass =
           parseCustomParentClass(name, dataClassName, element, resolver);
+
+      final interfaces = dataClassName
+          .getField('implementing')
+          ?.toListValue()
+          ?.map((field) => AnnotatedDartCode.type(field.toTypeValue()!))
+          .toList();
+      if (interfaces != null) {
+        implementedInterfaces = interfaces;
+      }
     }
 
     if (useRowClass != null) {
@@ -264,7 +288,7 @@ class DataClassInformation {
           useRowClass.getField('constructor')!.toStringValue()!;
       final generateInsertable =
           useRowClass.getField('generateInsertable')!.toBoolValue()!;
-      final helper = resolver.resolver.driver.knownTypes;
+      final helper = await resolver.resolver.driver.knownTypes;
 
       if (type is InterfaceType) {
         final found = FoundDartClass(type.element, type.typeArguments);
@@ -291,6 +315,7 @@ class DataClassInformation {
       companionName,
       customParentClass,
       existingClass,
+      implementedInterfaces,
     );
   }
 }

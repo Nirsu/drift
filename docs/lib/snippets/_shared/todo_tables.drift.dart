@@ -190,6 +190,16 @@ class TodoItem extends i0.DataClass implements i0.Insertable<i1.TodoItem> {
         category: category.present ? category.value : this.category,
         dueDate: dueDate.present ? dueDate.value : this.dueDate,
       );
+  TodoItem copyWithCompanion(i1.TodoItemsCompanion data) {
+    return TodoItem(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      content: data.content.present ? data.content.value : this.content,
+      category: data.category.present ? data.category.value : this.category,
+      dueDate: data.dueDate.present ? data.dueDate.value : this.dueDate,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('TodoItem(')
@@ -301,7 +311,7 @@ class TodoItemsCompanion extends i0.UpdateCompanion<i1.TodoItem> {
   }
 }
 
-typedef $$TodoItemsTableInsertCompanionBuilder = i1.TodoItemsCompanion
+typedef $$TodoItemsTableCreateCompanionBuilder = i1.TodoItemsCompanion
     Function({
   i0.Value<int> id,
   required String title,
@@ -317,69 +327,6 @@ typedef $$TodoItemsTableUpdateCompanionBuilder = i1.TodoItemsCompanion
   i0.Value<int?> category,
   i0.Value<DateTime?> dueDate,
 });
-
-class $$TodoItemsTableTableManager extends i0.RootTableManager<
-    i0.GeneratedDatabase,
-    i1.$TodoItemsTable,
-    i1.TodoItem,
-    i1.$$TodoItemsTableFilterComposer,
-    i1.$$TodoItemsTableOrderingComposer,
-    $$TodoItemsTableProcessedTableManager,
-    $$TodoItemsTableInsertCompanionBuilder,
-    $$TodoItemsTableUpdateCompanionBuilder> {
-  $$TodoItemsTableTableManager(
-      i0.GeneratedDatabase db, i1.$TodoItemsTable table)
-      : super(i0.TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              i1.$$TodoItemsTableFilterComposer(i0.ComposerState(db, table)),
-          orderingComposer:
-              i1.$$TodoItemsTableOrderingComposer(i0.ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$TodoItemsTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            i0.Value<String> title = const i0.Value.absent(),
-            i0.Value<String> content = const i0.Value.absent(),
-            i0.Value<int?> category = const i0.Value.absent(),
-            i0.Value<DateTime?> dueDate = const i0.Value.absent(),
-          }) =>
-              i1.TodoItemsCompanion(
-            id: id,
-            title: title,
-            content: content,
-            category: category,
-            dueDate: dueDate,
-          ),
-          getInsertCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            required String title,
-            required String content,
-            i0.Value<int?> category = const i0.Value.absent(),
-            i0.Value<DateTime?> dueDate = const i0.Value.absent(),
-          }) =>
-              i1.TodoItemsCompanion.insert(
-            id: id,
-            title: title,
-            content: content,
-            category: category,
-            dueDate: dueDate,
-          ),
-        ));
-}
-
-class $$TodoItemsTableProcessedTableManager extends i0.ProcessedTableManager<
-    i0.GeneratedDatabase,
-    i1.$TodoItemsTable,
-    i1.TodoItem,
-    i1.$$TodoItemsTableFilterComposer,
-    i1.$$TodoItemsTableOrderingComposer,
-    $$TodoItemsTableProcessedTableManager,
-    $$TodoItemsTableInsertCompanionBuilder,
-    $$TodoItemsTableUpdateCompanionBuilder> {
-  $$TodoItemsTableProcessedTableManager(super.$state);
-}
 
 class $$TodoItemsTableFilterComposer
     extends i0.FilterComposer<i0.GeneratedDatabase, i1.$TodoItemsTable> {
@@ -463,6 +410,79 @@ class $$TodoItemsTableOrderingComposer
     return composer;
   }
 }
+
+class $$TodoItemsTableTableManager extends i0.RootTableManager<
+    i0.GeneratedDatabase,
+    i1.$TodoItemsTable,
+    i1.TodoItem,
+    i1.$$TodoItemsTableFilterComposer,
+    i1.$$TodoItemsTableOrderingComposer,
+    $$TodoItemsTableCreateCompanionBuilder,
+    $$TodoItemsTableUpdateCompanionBuilder,
+    (
+      i1.TodoItem,
+      i0.BaseReferences<i0.GeneratedDatabase, i1.$TodoItemsTable, i1.TodoItem>
+    ),
+    i1.TodoItem,
+    i0.PrefetchHooks Function({bool category})> {
+  $$TodoItemsTableTableManager(
+      i0.GeneratedDatabase db, i1.$TodoItemsTable table)
+      : super(i0.TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              i1.$$TodoItemsTableFilterComposer(i0.ComposerState(db, table)),
+          orderingComposer:
+              i1.$$TodoItemsTableOrderingComposer(i0.ComposerState(db, table)),
+          updateCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            i0.Value<String> title = const i0.Value.absent(),
+            i0.Value<String> content = const i0.Value.absent(),
+            i0.Value<int?> category = const i0.Value.absent(),
+            i0.Value<DateTime?> dueDate = const i0.Value.absent(),
+          }) =>
+              i1.TodoItemsCompanion(
+            id: id,
+            title: title,
+            content: content,
+            category: category,
+            dueDate: dueDate,
+          ),
+          createCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            required String title,
+            required String content,
+            i0.Value<int?> category = const i0.Value.absent(),
+            i0.Value<DateTime?> dueDate = const i0.Value.absent(),
+          }) =>
+              i1.TodoItemsCompanion.insert(
+            id: id,
+            title: title,
+            content: content,
+            category: category,
+            dueDate: dueDate,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), i0.BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TodoItemsTableProcessedTableManager = i0.ProcessedTableManager<
+    i0.GeneratedDatabase,
+    i1.$TodoItemsTable,
+    i1.TodoItem,
+    i1.$$TodoItemsTableFilterComposer,
+    i1.$$TodoItemsTableOrderingComposer,
+    $$TodoItemsTableCreateCompanionBuilder,
+    $$TodoItemsTableUpdateCompanionBuilder,
+    (
+      i1.TodoItem,
+      i0.BaseReferences<i0.GeneratedDatabase, i1.$TodoItemsTable, i1.TodoItem>
+    ),
+    i1.TodoItem,
+    i0.PrefetchHooks Function({bool category})>;
 
 class $CategoriesTable extends i2.Categories
     with i0.TableInfo<$CategoriesTable, i1.Category> {
@@ -568,6 +588,13 @@ class Category extends i0.DataClass implements i0.Insertable<i1.Category> {
         id: id ?? this.id,
         name: name ?? this.name,
       );
+  Category copyWithCompanion(i1.CategoriesCompanion data) {
+    return Category(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('Category(')
@@ -635,7 +662,7 @@ class CategoriesCompanion extends i0.UpdateCompanion<i1.Category> {
   }
 }
 
-typedef $$CategoriesTableInsertCompanionBuilder = i1.CategoriesCompanion
+typedef $$CategoriesTableCreateCompanionBuilder = i1.CategoriesCompanion
     Function({
   i0.Value<int> id,
   required String name,
@@ -645,57 +672,6 @@ typedef $$CategoriesTableUpdateCompanionBuilder = i1.CategoriesCompanion
   i0.Value<int> id,
   i0.Value<String> name,
 });
-
-class $$CategoriesTableTableManager extends i0.RootTableManager<
-    i0.GeneratedDatabase,
-    i1.$CategoriesTable,
-    i1.Category,
-    i1.$$CategoriesTableFilterComposer,
-    i1.$$CategoriesTableOrderingComposer,
-    $$CategoriesTableProcessedTableManager,
-    $$CategoriesTableInsertCompanionBuilder,
-    $$CategoriesTableUpdateCompanionBuilder> {
-  $$CategoriesTableTableManager(
-      i0.GeneratedDatabase db, i1.$CategoriesTable table)
-      : super(i0.TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              i1.$$CategoriesTableFilterComposer(i0.ComposerState(db, table)),
-          orderingComposer:
-              i1.$$CategoriesTableOrderingComposer(i0.ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$CategoriesTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            i0.Value<String> name = const i0.Value.absent(),
-          }) =>
-              i1.CategoriesCompanion(
-            id: id,
-            name: name,
-          ),
-          getInsertCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            required String name,
-          }) =>
-              i1.CategoriesCompanion.insert(
-            id: id,
-            name: name,
-          ),
-        ));
-}
-
-class $$CategoriesTableProcessedTableManager extends i0.ProcessedTableManager<
-    i0.GeneratedDatabase,
-    i1.$CategoriesTable,
-    i1.Category,
-    i1.$$CategoriesTableFilterComposer,
-    i1.$$CategoriesTableOrderingComposer,
-    $$CategoriesTableProcessedTableManager,
-    $$CategoriesTableInsertCompanionBuilder,
-    $$CategoriesTableUpdateCompanionBuilder> {
-  $$CategoriesTableProcessedTableManager(super.$state);
-}
 
 class $$CategoriesTableFilterComposer
     extends i0.FilterComposer<i0.GeneratedDatabase, i1.$CategoriesTable> {
@@ -724,6 +700,67 @@ class $$CategoriesTableOrderingComposer
       builder: (column, joinBuilders) =>
           i0.ColumnOrderings(column, joinBuilders: joinBuilders));
 }
+
+class $$CategoriesTableTableManager extends i0.RootTableManager<
+    i0.GeneratedDatabase,
+    i1.$CategoriesTable,
+    i1.Category,
+    i1.$$CategoriesTableFilterComposer,
+    i1.$$CategoriesTableOrderingComposer,
+    $$CategoriesTableCreateCompanionBuilder,
+    $$CategoriesTableUpdateCompanionBuilder,
+    (
+      i1.Category,
+      i0.BaseReferences<i0.GeneratedDatabase, i1.$CategoriesTable, i1.Category>
+    ),
+    i1.Category,
+    i0.PrefetchHooks Function()> {
+  $$CategoriesTableTableManager(
+      i0.GeneratedDatabase db, i1.$CategoriesTable table)
+      : super(i0.TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              i1.$$CategoriesTableFilterComposer(i0.ComposerState(db, table)),
+          orderingComposer:
+              i1.$$CategoriesTableOrderingComposer(i0.ComposerState(db, table)),
+          updateCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            i0.Value<String> name = const i0.Value.absent(),
+          }) =>
+              i1.CategoriesCompanion(
+            id: id,
+            name: name,
+          ),
+          createCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            required String name,
+          }) =>
+              i1.CategoriesCompanion.insert(
+            id: id,
+            name: name,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), i0.BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CategoriesTableProcessedTableManager = i0.ProcessedTableManager<
+    i0.GeneratedDatabase,
+    i1.$CategoriesTable,
+    i1.Category,
+    i1.$$CategoriesTableFilterComposer,
+    i1.$$CategoriesTableOrderingComposer,
+    $$CategoriesTableCreateCompanionBuilder,
+    $$CategoriesTableUpdateCompanionBuilder,
+    (
+      i1.Category,
+      i0.BaseReferences<i0.GeneratedDatabase, i1.$CategoriesTable, i1.Category>
+    ),
+    i1.Category,
+    i0.PrefetchHooks Function()>;
 
 class $UsersTable extends i2.Users with i0.TableInfo<$UsersTable, i1.User> {
   @override
@@ -828,6 +865,13 @@ class User extends i0.DataClass implements i0.Insertable<i1.User> {
         id: id ?? this.id,
         birthDate: birthDate ?? this.birthDate,
       );
+  User copyWithCompanion(i1.UsersCompanion data) {
+    return User(
+      id: data.id.present ? data.id.value : this.id,
+      birthDate: data.birthDate.present ? data.birthDate.value : this.birthDate,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('User(')
@@ -898,7 +942,7 @@ class UsersCompanion extends i0.UpdateCompanion<i1.User> {
   }
 }
 
-typedef $$UsersTableInsertCompanionBuilder = i1.UsersCompanion Function({
+typedef $$UsersTableCreateCompanionBuilder = i1.UsersCompanion Function({
   i0.Value<int> id,
   required DateTime birthDate,
 });
@@ -906,55 +950,6 @@ typedef $$UsersTableUpdateCompanionBuilder = i1.UsersCompanion Function({
   i0.Value<int> id,
   i0.Value<DateTime> birthDate,
 });
-
-class $$UsersTableTableManager extends i0.RootTableManager<
-    i0.GeneratedDatabase,
-    i1.$UsersTable,
-    i1.User,
-    i1.$$UsersTableFilterComposer,
-    i1.$$UsersTableOrderingComposer,
-    $$UsersTableProcessedTableManager,
-    $$UsersTableInsertCompanionBuilder,
-    $$UsersTableUpdateCompanionBuilder> {
-  $$UsersTableTableManager(i0.GeneratedDatabase db, i1.$UsersTable table)
-      : super(i0.TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              i1.$$UsersTableFilterComposer(i0.ComposerState(db, table)),
-          orderingComposer:
-              i1.$$UsersTableOrderingComposer(i0.ComposerState(db, table)),
-          getChildManagerBuilder: (p) => $$UsersTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            i0.Value<DateTime> birthDate = const i0.Value.absent(),
-          }) =>
-              i1.UsersCompanion(
-            id: id,
-            birthDate: birthDate,
-          ),
-          getInsertCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            required DateTime birthDate,
-          }) =>
-              i1.UsersCompanion.insert(
-            id: id,
-            birthDate: birthDate,
-          ),
-        ));
-}
-
-class $$UsersTableProcessedTableManager extends i0.ProcessedTableManager<
-    i0.GeneratedDatabase,
-    i1.$UsersTable,
-    i1.User,
-    i1.$$UsersTableFilterComposer,
-    i1.$$UsersTableOrderingComposer,
-    $$UsersTableProcessedTableManager,
-    $$UsersTableInsertCompanionBuilder,
-    $$UsersTableUpdateCompanionBuilder> {
-  $$UsersTableProcessedTableManager(super.$state);
-}
 
 class $$UsersTableFilterComposer
     extends i0.FilterComposer<i0.GeneratedDatabase, i1.$UsersTable> {
@@ -983,3 +978,57 @@ class $$UsersTableOrderingComposer
       builder: (column, joinBuilders) =>
           i0.ColumnOrderings(column, joinBuilders: joinBuilders));
 }
+
+class $$UsersTableTableManager extends i0.RootTableManager<
+    i0.GeneratedDatabase,
+    i1.$UsersTable,
+    i1.User,
+    i1.$$UsersTableFilterComposer,
+    i1.$$UsersTableOrderingComposer,
+    $$UsersTableCreateCompanionBuilder,
+    $$UsersTableUpdateCompanionBuilder,
+    (i1.User, i0.BaseReferences<i0.GeneratedDatabase, i1.$UsersTable, i1.User>),
+    i1.User,
+    i0.PrefetchHooks Function()> {
+  $$UsersTableTableManager(i0.GeneratedDatabase db, i1.$UsersTable table)
+      : super(i0.TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              i1.$$UsersTableFilterComposer(i0.ComposerState(db, table)),
+          orderingComposer:
+              i1.$$UsersTableOrderingComposer(i0.ComposerState(db, table)),
+          updateCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            i0.Value<DateTime> birthDate = const i0.Value.absent(),
+          }) =>
+              i1.UsersCompanion(
+            id: id,
+            birthDate: birthDate,
+          ),
+          createCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            required DateTime birthDate,
+          }) =>
+              i1.UsersCompanion.insert(
+            id: id,
+            birthDate: birthDate,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), i0.BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$UsersTableProcessedTableManager = i0.ProcessedTableManager<
+    i0.GeneratedDatabase,
+    i1.$UsersTable,
+    i1.User,
+    i1.$$UsersTableFilterComposer,
+    i1.$$UsersTableOrderingComposer,
+    $$UsersTableCreateCompanionBuilder,
+    $$UsersTableUpdateCompanionBuilder,
+    (i1.User, i0.BaseReferences<i0.GeneratedDatabase, i1.$UsersTable, i1.User>),
+    i1.User,
+    i0.PrefetchHooks Function()>;

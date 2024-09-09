@@ -1,7 +1,55 @@
-## 2.19.0-dev
+## 2.20.1
 
+- Migrate legacy `package:drift/web.dart` to the new JS interop SDK libraries.
+  For backwards compatibility, the `channel()` extension on the `MessagePort`
+  class in `dart:html` has been kept.
+  Once `dart:html` is removed from the Dart SDK, that extension will have to
+  be removed from drift as well.
+- Fix cast errors in the protocol for remote workers when compiling with
+  `dart2wasm`.
+- Introduce a faster protocol for communicating with workers. This protocol is
+  enabled automatically after upgrading `drift_worker.js`.
+
+## 2.20.0
+
+- Improve manager API to be able to resolve references when running queries.
+- Add `readPool` parameter to `NativeDatabase`. It will spawn an additional
+  pool of isolates used to serve multiple reads in parallel, which can improve
+  performance in some specific workloads.
+- Add `TableIndex.sql`, allowing database indexes to be defined in SQL without
+  using drift files.
+- Add `DataClassName.implementing`, which can be used to make drift-generated
+  row classes implement existing interfaces.
+- Mark legacy `package:drift/web.dart` as deprecated. Users should migrate to
+  `package:drift/wasm.dart`.
+
+## 2.19.2
+
+- Support version `1.x` of `package:web`.
+
+## 2.19.1+1
+
+- Fix `exclusively` breaking the database connection on the web. Please note
+  that this requires an updated `drift_worker.js` to fix.
+
+## 2.19.0
+
+- Add `exclusively` method to database classes, allowing a block to temporarily
+  take exclusive control over a database connection without starting a
+  transaction.
 - Add the `enableMigrations` parameter to `WasmDatabase` to control whether drift
   migrations are enabled on that database.
+- Add `initiallyDeferred` option to `references()` column builder for foreign
+  key constraints.
+- Add `dropColumn` method to `Migrator`.
+- Add `selectExpressions` method to build select statements without a `FROM`
+  clause.
+- Fix encoding `BigInt` arguments in batched statements sent to web workers.
+  Note that the fix also requires the latest `drift_worker.js` to be effective.
+- Both `transaction` and `exclusively` will wait for the transaction or the
+  exclusive lock to be set up before invoking their callback now.
+- Fix stream queries possibly cancelling a migration if they are the first method
+  on the database.
 
 ## 2.18.0
 

@@ -3,6 +3,12 @@ import 'dart:js_interop';
 import 'package:stream_channel/stream_channel.dart';
 
 import 'package:web/web.dart' as web;
+import 'package:drift/remote.dart';
+
+import '../remote/protocol.dart';
+import '../remote/web_protocol.dart';
+
+const _protocol = WebProtocol();
 
 /// Extension to transform a raw [MessagePort] from web workers into a Dart
 /// [StreamChannel].
@@ -22,7 +28,17 @@ extension WebPortToChannel on web.MessagePort {
   /// for channels being closed due to a tab or worker being closed.
   /// Both "ends" of a JS channel calling [channel] on their part must use the
   /// value for [explicitClose].
-  StreamChannel<Object?> channel({bool explicitClose = false}) {
+  ///
+  /// When [webNativeSerialization] is enabled, the [StreamChannel] can only be
+  /// used for drift databases using the `package:drift/remote.dart` protocol
+  /// and is not suitable for any other message.
+  /// This allows disabling the `serialize` parameter on [connectToRemoteAndInitialize]
+  /// and improves performance. Both endpoints need to use the same values for
+  /// [explicitClose] and [webNativeSerialization].
+  StreamChannel<Object?> channel({
+    bool explicitClose = false,
+    bool webNativeSerialization = false,
+  }) {
     final controller = StreamChannelController<Object?>();
 
     onmessage = (web.MessageEvent event) {
@@ -31,12 +47,21 @@ extension WebPortToChannel on web.MessagePort {
       if (explicitClose && message == _disconnectMessage.toJS) {
         // Other end has closed the connection
         controller.local.sink.close();
+      } else if (webNativeSerialization) {
+        controller.local.sink.add(_protocol.deserialize(message as JSArray));
       } else {
         controller.local.sink.add(message.dartify());
       }
     }.toJS;
 
-    controller.local.stream.listen((e) => postMessage(e.jsify()), onDone: () {
+    controller.local.stream.listen((e) {
+      if (webNativeSerialization) {
+        final serialized = _protocol.serialize(e as Message);
+        postMessage(serialized);
+      } else {
+        postMessage(e.jsify());
+      }
+    }, onDone: () {
       // Closed locally, inform the other end.
       if (explicitClose) {
         postMessage(_disconnectMessage.toJS);

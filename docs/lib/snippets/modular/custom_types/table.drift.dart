@@ -135,6 +135,14 @@ class PeriodicReminder extends i0.DataClass
         frequency: frequency ?? this.frequency,
         reminder: reminder ?? this.reminder,
       );
+  PeriodicReminder copyWithCompanion(i1.PeriodicRemindersCompanion data) {
+    return PeriodicReminder(
+      id: data.id.present ? data.id.value : this.id,
+      frequency: data.frequency.present ? data.frequency.value : this.frequency,
+      reminder: data.reminder.present ? data.reminder.value : this.reminder,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('PeriodicReminder(')
@@ -221,7 +229,7 @@ class PeriodicRemindersCompanion
   }
 }
 
-typedef $$PeriodicRemindersTableInsertCompanionBuilder
+typedef $$PeriodicRemindersTableCreateCompanionBuilder
     = i1.PeriodicRemindersCompanion Function({
   i0.Value<int> id,
   i0.Value<Duration> frequency,
@@ -233,62 +241,6 @@ typedef $$PeriodicRemindersTableUpdateCompanionBuilder
   i0.Value<Duration> frequency,
   i0.Value<String> reminder,
 });
-
-class $$PeriodicRemindersTableTableManager extends i0.RootTableManager<
-    i0.GeneratedDatabase,
-    i1.$PeriodicRemindersTable,
-    i1.PeriodicReminder,
-    i1.$$PeriodicRemindersTableFilterComposer,
-    i1.$$PeriodicRemindersTableOrderingComposer,
-    $$PeriodicRemindersTableProcessedTableManager,
-    $$PeriodicRemindersTableInsertCompanionBuilder,
-    $$PeriodicRemindersTableUpdateCompanionBuilder> {
-  $$PeriodicRemindersTableTableManager(
-      i0.GeneratedDatabase db, i1.$PeriodicRemindersTable table)
-      : super(i0.TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer: i1.$$PeriodicRemindersTableFilterComposer(
-              i0.ComposerState(db, table)),
-          orderingComposer: i1.$$PeriodicRemindersTableOrderingComposer(
-              i0.ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$PeriodicRemindersTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            i0.Value<Duration> frequency = const i0.Value.absent(),
-            i0.Value<String> reminder = const i0.Value.absent(),
-          }) =>
-              i1.PeriodicRemindersCompanion(
-            id: id,
-            frequency: frequency,
-            reminder: reminder,
-          ),
-          getInsertCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            i0.Value<Duration> frequency = const i0.Value.absent(),
-            required String reminder,
-          }) =>
-              i1.PeriodicRemindersCompanion.insert(
-            id: id,
-            frequency: frequency,
-            reminder: reminder,
-          ),
-        ));
-}
-
-class $$PeriodicRemindersTableProcessedTableManager
-    extends i0.ProcessedTableManager<
-        i0.GeneratedDatabase,
-        i1.$PeriodicRemindersTable,
-        i1.PeriodicReminder,
-        i1.$$PeriodicRemindersTableFilterComposer,
-        i1.$$PeriodicRemindersTableOrderingComposer,
-        $$PeriodicRemindersTableProcessedTableManager,
-        $$PeriodicRemindersTableInsertCompanionBuilder,
-        $$PeriodicRemindersTableUpdateCompanionBuilder> {
-  $$PeriodicRemindersTableProcessedTableManager(super.$state);
-}
 
 class $$PeriodicRemindersTableFilterComposer extends i0
     .FilterComposer<i0.GeneratedDatabase, i1.$PeriodicRemindersTable> {
@@ -327,3 +279,71 @@ class $$PeriodicRemindersTableOrderingComposer extends i0
       builder: (column, joinBuilders) =>
           i0.ColumnOrderings(column, joinBuilders: joinBuilders));
 }
+
+class $$PeriodicRemindersTableTableManager extends i0.RootTableManager<
+    i0.GeneratedDatabase,
+    i1.$PeriodicRemindersTable,
+    i1.PeriodicReminder,
+    i1.$$PeriodicRemindersTableFilterComposer,
+    i1.$$PeriodicRemindersTableOrderingComposer,
+    $$PeriodicRemindersTableCreateCompanionBuilder,
+    $$PeriodicRemindersTableUpdateCompanionBuilder,
+    (
+      i1.PeriodicReminder,
+      i0.BaseReferences<i0.GeneratedDatabase, i1.$PeriodicRemindersTable,
+          i1.PeriodicReminder>
+    ),
+    i1.PeriodicReminder,
+    i0.PrefetchHooks Function()> {
+  $$PeriodicRemindersTableTableManager(
+      i0.GeneratedDatabase db, i1.$PeriodicRemindersTable table)
+      : super(i0.TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: i1.$$PeriodicRemindersTableFilterComposer(
+              i0.ComposerState(db, table)),
+          orderingComposer: i1.$$PeriodicRemindersTableOrderingComposer(
+              i0.ComposerState(db, table)),
+          updateCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            i0.Value<Duration> frequency = const i0.Value.absent(),
+            i0.Value<String> reminder = const i0.Value.absent(),
+          }) =>
+              i1.PeriodicRemindersCompanion(
+            id: id,
+            frequency: frequency,
+            reminder: reminder,
+          ),
+          createCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            i0.Value<Duration> frequency = const i0.Value.absent(),
+            required String reminder,
+          }) =>
+              i1.PeriodicRemindersCompanion.insert(
+            id: id,
+            frequency: frequency,
+            reminder: reminder,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), i0.BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$PeriodicRemindersTableProcessedTableManager
+    = i0.ProcessedTableManager<
+        i0.GeneratedDatabase,
+        i1.$PeriodicRemindersTable,
+        i1.PeriodicReminder,
+        i1.$$PeriodicRemindersTableFilterComposer,
+        i1.$$PeriodicRemindersTableOrderingComposer,
+        $$PeriodicRemindersTableCreateCompanionBuilder,
+        $$PeriodicRemindersTableUpdateCompanionBuilder,
+        (
+          i1.PeriodicReminder,
+          i0.BaseReferences<i0.GeneratedDatabase, i1.$PeriodicRemindersTable,
+              i1.PeriodicReminder>
+        ),
+        i1.PeriodicReminder,
+        i0.PrefetchHooks Function()>;

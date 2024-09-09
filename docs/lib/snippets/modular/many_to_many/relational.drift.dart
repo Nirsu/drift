@@ -120,6 +120,12 @@ class ShoppingCart extends i0.DataClass
   i2.ShoppingCart copyWith({int? id}) => i2.ShoppingCart(
         id: id ?? this.id,
       );
+  ShoppingCart copyWithCompanion(i2.ShoppingCartsCompanion data) {
+    return ShoppingCart(
+      id: data.id.present ? data.id.value : this.id,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('ShoppingCart(')
@@ -176,7 +182,7 @@ class ShoppingCartsCompanion extends i0.UpdateCompanion<i2.ShoppingCart> {
   }
 }
 
-typedef $$ShoppingCartsTableInsertCompanionBuilder = i2.ShoppingCartsCompanion
+typedef $$ShoppingCartsTableCreateCompanionBuilder = i2.ShoppingCartsCompanion
     Function({
   i0.Value<int> id,
 });
@@ -184,54 +190,6 @@ typedef $$ShoppingCartsTableUpdateCompanionBuilder = i2.ShoppingCartsCompanion
     Function({
   i0.Value<int> id,
 });
-
-class $$ShoppingCartsTableTableManager extends i0.RootTableManager<
-    i0.GeneratedDatabase,
-    i2.$ShoppingCartsTable,
-    i2.ShoppingCart,
-    i2.$$ShoppingCartsTableFilterComposer,
-    i2.$$ShoppingCartsTableOrderingComposer,
-    $$ShoppingCartsTableProcessedTableManager,
-    $$ShoppingCartsTableInsertCompanionBuilder,
-    $$ShoppingCartsTableUpdateCompanionBuilder> {
-  $$ShoppingCartsTableTableManager(
-      i0.GeneratedDatabase db, i2.$ShoppingCartsTable table)
-      : super(i0.TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer: i2
-              .$$ShoppingCartsTableFilterComposer(i0.ComposerState(db, table)),
-          orderingComposer: i2.$$ShoppingCartsTableOrderingComposer(
-              i0.ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$ShoppingCartsTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-          }) =>
-              i2.ShoppingCartsCompanion(
-            id: id,
-          ),
-          getInsertCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-          }) =>
-              i2.ShoppingCartsCompanion.insert(
-            id: id,
-          ),
-        ));
-}
-
-class $$ShoppingCartsTableProcessedTableManager
-    extends i0.ProcessedTableManager<
-        i0.GeneratedDatabase,
-        i2.$ShoppingCartsTable,
-        i2.ShoppingCart,
-        i2.$$ShoppingCartsTableFilterComposer,
-        i2.$$ShoppingCartsTableOrderingComposer,
-        $$ShoppingCartsTableProcessedTableManager,
-        $$ShoppingCartsTableInsertCompanionBuilder,
-        $$ShoppingCartsTableUpdateCompanionBuilder> {
-  $$ShoppingCartsTableProcessedTableManager(super.$state);
-}
 
 class $$ShoppingCartsTableFilterComposer
     extends i0.FilterComposer<i0.GeneratedDatabase, i2.$ShoppingCartsTable> {
@@ -250,6 +208,65 @@ class $$ShoppingCartsTableOrderingComposer
       builder: (column, joinBuilders) =>
           i0.ColumnOrderings(column, joinBuilders: joinBuilders));
 }
+
+class $$ShoppingCartsTableTableManager extends i0.RootTableManager<
+    i0.GeneratedDatabase,
+    i2.$ShoppingCartsTable,
+    i2.ShoppingCart,
+    i2.$$ShoppingCartsTableFilterComposer,
+    i2.$$ShoppingCartsTableOrderingComposer,
+    $$ShoppingCartsTableCreateCompanionBuilder,
+    $$ShoppingCartsTableUpdateCompanionBuilder,
+    (
+      i2.ShoppingCart,
+      i0.BaseReferences<i0.GeneratedDatabase, i2.$ShoppingCartsTable,
+          i2.ShoppingCart>
+    ),
+    i2.ShoppingCart,
+    i0.PrefetchHooks Function()> {
+  $$ShoppingCartsTableTableManager(
+      i0.GeneratedDatabase db, i2.$ShoppingCartsTable table)
+      : super(i0.TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: i2
+              .$$ShoppingCartsTableFilterComposer(i0.ComposerState(db, table)),
+          orderingComposer: i2.$$ShoppingCartsTableOrderingComposer(
+              i0.ComposerState(db, table)),
+          updateCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+          }) =>
+              i2.ShoppingCartsCompanion(
+            id: id,
+          ),
+          createCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+          }) =>
+              i2.ShoppingCartsCompanion.insert(
+            id: id,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), i0.BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ShoppingCartsTableProcessedTableManager = i0.ProcessedTableManager<
+    i0.GeneratedDatabase,
+    i2.$ShoppingCartsTable,
+    i2.ShoppingCart,
+    i2.$$ShoppingCartsTableFilterComposer,
+    i2.$$ShoppingCartsTableOrderingComposer,
+    $$ShoppingCartsTableCreateCompanionBuilder,
+    $$ShoppingCartsTableUpdateCompanionBuilder,
+    (
+      i2.ShoppingCart,
+      i0.BaseReferences<i0.GeneratedDatabase, i2.$ShoppingCartsTable,
+          i2.ShoppingCart>
+    ),
+    i2.ShoppingCart,
+    i0.PrefetchHooks Function()>;
 
 class $ShoppingCartEntriesTable extends i3.ShoppingCartEntries
     with i0.TableInfo<$ShoppingCartEntriesTable, i2.ShoppingCartEntry> {
@@ -366,6 +383,15 @@ class ShoppingCartEntry extends i0.DataClass
         shoppingCart: shoppingCart ?? this.shoppingCart,
         item: item ?? this.item,
       );
+  ShoppingCartEntry copyWithCompanion(i2.ShoppingCartEntriesCompanion data) {
+    return ShoppingCartEntry(
+      shoppingCart: data.shoppingCart.present
+          ? data.shoppingCart.value
+          : this.shoppingCart,
+      item: data.item.present ? data.item.value : this.item,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('ShoppingCartEntry(')
@@ -450,7 +476,7 @@ class ShoppingCartEntriesCompanion
   }
 }
 
-typedef $$ShoppingCartEntriesTableInsertCompanionBuilder
+typedef $$ShoppingCartEntriesTableCreateCompanionBuilder
     = i2.ShoppingCartEntriesCompanion Function({
   required int shoppingCart,
   required int item,
@@ -462,62 +488,6 @@ typedef $$ShoppingCartEntriesTableUpdateCompanionBuilder
   i0.Value<int> item,
   i0.Value<int> rowid,
 });
-
-class $$ShoppingCartEntriesTableTableManager extends i0.RootTableManager<
-    i0.GeneratedDatabase,
-    i2.$ShoppingCartEntriesTable,
-    i2.ShoppingCartEntry,
-    i2.$$ShoppingCartEntriesTableFilterComposer,
-    i2.$$ShoppingCartEntriesTableOrderingComposer,
-    $$ShoppingCartEntriesTableProcessedTableManager,
-    $$ShoppingCartEntriesTableInsertCompanionBuilder,
-    $$ShoppingCartEntriesTableUpdateCompanionBuilder> {
-  $$ShoppingCartEntriesTableTableManager(
-      i0.GeneratedDatabase db, i2.$ShoppingCartEntriesTable table)
-      : super(i0.TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer: i2.$$ShoppingCartEntriesTableFilterComposer(
-              i0.ComposerState(db, table)),
-          orderingComposer: i2.$$ShoppingCartEntriesTableOrderingComposer(
-              i0.ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$ShoppingCartEntriesTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            i0.Value<int> shoppingCart = const i0.Value.absent(),
-            i0.Value<int> item = const i0.Value.absent(),
-            i0.Value<int> rowid = const i0.Value.absent(),
-          }) =>
-              i2.ShoppingCartEntriesCompanion(
-            shoppingCart: shoppingCart,
-            item: item,
-            rowid: rowid,
-          ),
-          getInsertCompanionBuilder: ({
-            required int shoppingCart,
-            required int item,
-            i0.Value<int> rowid = const i0.Value.absent(),
-          }) =>
-              i2.ShoppingCartEntriesCompanion.insert(
-            shoppingCart: shoppingCart,
-            item: item,
-            rowid: rowid,
-          ),
-        ));
-}
-
-class $$ShoppingCartEntriesTableProcessedTableManager
-    extends i0.ProcessedTableManager<
-        i0.GeneratedDatabase,
-        i2.$ShoppingCartEntriesTable,
-        i2.ShoppingCartEntry,
-        i2.$$ShoppingCartEntriesTableFilterComposer,
-        i2.$$ShoppingCartEntriesTableOrderingComposer,
-        $$ShoppingCartEntriesTableProcessedTableManager,
-        $$ShoppingCartEntriesTableInsertCompanionBuilder,
-        $$ShoppingCartEntriesTableUpdateCompanionBuilder> {
-  $$ShoppingCartEntriesTableProcessedTableManager(super.$state);
-}
 
 class $$ShoppingCartEntriesTableFilterComposer extends i0
     .FilterComposer<i0.GeneratedDatabase, i2.$ShoppingCartEntriesTable> {
@@ -600,3 +570,71 @@ class $$ShoppingCartEntriesTableOrderingComposer extends i0
     return composer;
   }
 }
+
+class $$ShoppingCartEntriesTableTableManager extends i0.RootTableManager<
+    i0.GeneratedDatabase,
+    i2.$ShoppingCartEntriesTable,
+    i2.ShoppingCartEntry,
+    i2.$$ShoppingCartEntriesTableFilterComposer,
+    i2.$$ShoppingCartEntriesTableOrderingComposer,
+    $$ShoppingCartEntriesTableCreateCompanionBuilder,
+    $$ShoppingCartEntriesTableUpdateCompanionBuilder,
+    (
+      i2.ShoppingCartEntry,
+      i0.BaseReferences<i0.GeneratedDatabase, i2.$ShoppingCartEntriesTable,
+          i2.ShoppingCartEntry>
+    ),
+    i2.ShoppingCartEntry,
+    i0.PrefetchHooks Function({bool shoppingCart, bool item})> {
+  $$ShoppingCartEntriesTableTableManager(
+      i0.GeneratedDatabase db, i2.$ShoppingCartEntriesTable table)
+      : super(i0.TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: i2.$$ShoppingCartEntriesTableFilterComposer(
+              i0.ComposerState(db, table)),
+          orderingComposer: i2.$$ShoppingCartEntriesTableOrderingComposer(
+              i0.ComposerState(db, table)),
+          updateCompanionCallback: ({
+            i0.Value<int> shoppingCart = const i0.Value.absent(),
+            i0.Value<int> item = const i0.Value.absent(),
+            i0.Value<int> rowid = const i0.Value.absent(),
+          }) =>
+              i2.ShoppingCartEntriesCompanion(
+            shoppingCart: shoppingCart,
+            item: item,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required int shoppingCart,
+            required int item,
+            i0.Value<int> rowid = const i0.Value.absent(),
+          }) =>
+              i2.ShoppingCartEntriesCompanion.insert(
+            shoppingCart: shoppingCart,
+            item: item,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), i0.BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ShoppingCartEntriesTableProcessedTableManager
+    = i0.ProcessedTableManager<
+        i0.GeneratedDatabase,
+        i2.$ShoppingCartEntriesTable,
+        i2.ShoppingCartEntry,
+        i2.$$ShoppingCartEntriesTableFilterComposer,
+        i2.$$ShoppingCartEntriesTableOrderingComposer,
+        $$ShoppingCartEntriesTableCreateCompanionBuilder,
+        $$ShoppingCartEntriesTableUpdateCompanionBuilder,
+        (
+          i2.ShoppingCartEntry,
+          i0.BaseReferences<i0.GeneratedDatabase, i2.$ShoppingCartEntriesTable,
+              i2.ShoppingCartEntry>
+        ),
+        i2.ShoppingCartEntry,
+        i0.PrefetchHooks Function({bool shoppingCart, bool item})>;

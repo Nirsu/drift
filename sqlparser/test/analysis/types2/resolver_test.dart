@@ -248,8 +248,37 @@ void main() {
   });
 
   test('resolves subqueries', () {
-    final type = resolveResultColumn('SELECT (SELECT COUNT(*) FROM demo);');
-    expect(type, const ResolvedType(type: BasicType.int));
+    expect(
+      resolveResultColumn('SELECT (SELECT COUNT(*) FROM demo);'),
+      const ResolvedType(type: BasicType.int, nullable: false),
+    );
+
+    expect(
+      resolveResultColumn('SELECT (SELECT id FROM demo);'),
+      const ResolvedType(type: BasicType.int, nullable: true),
+    );
+
+    expect(
+      resolveResultColumn('SELECT (SELECT COUNT(*) == 0 FROM demo);'),
+      const ResolvedType.bool(nullable: false),
+    );
+
+    expect(
+      resolveResultColumn(
+          'SELECT (SELECT COUNT(*) == 0 FROM demo GROUP BY id);'),
+      const ResolvedType.bool(nullable: true),
+    );
+
+    expect(
+      resolveResultColumn('SELECT (SELECT IFNULL(MIN(id), 0) FROM demo);'),
+      const ResolvedType(type: BasicType.int, nullable: false),
+    );
+
+    expect(
+      resolveResultColumn(
+          'SELECT (SELECT IFNULL(CAST(SUM(id) AS INT), 0) FROM demo);'),
+      const ResolvedType(type: BasicType.int, nullable: false),
+    );
   });
 
   test('infers types for dart placeholders', () {

@@ -19,7 +19,8 @@ class FileAnalyzer {
 
   Future<FileAnalysisResult> runAnalysisOn(FileState state) async {
     final result = FileAnalysisResult();
-    final knownTypes = driver.knownTypes;
+    final knownTypes = await driver.knownTypes;
+    final typeMapping = await driver.typeMapping;
 
     if (state.extension == '.dart') {
       for (final elementAnalysis in state.analysis.values) {
@@ -70,6 +71,19 @@ class FileAnalyzer {
                     (e) => e is DefinedSqlQuery || e is DriftSchemaElement);
               })
               .whereType<DriftElement>()
+              .where((e) {
+                // Exclude any private tables that do not reside in the same library
+                // as the DriftDatabase.
+                // Failure to exclude these, can generate dart code which references
+                // classes that cannot be legally accessed - and will not compile.
+                // Private classes residing in the same library are allowed, as
+                // per dart language accessibility rules.
+                if (e is DriftElementWithResultSet &&
+                    e.entityInfoName.startsWith(r'$_')) {
+                  return e.id.libraryUri == element.id.libraryUri;
+                }
+                return true;
+              })
               .followedBy(availableByDefault)
               .transitiveClosureUnderReferences()
               .sortTopologicallyOrElse(driver.backend.log.severe);
@@ -99,12 +113,13 @@ class FileAnalyzer {
           }
 
           for (final query in element.declaredQueries) {
-            final engine =
-                driver.typeMapping.newEngineWithTables(availableElements);
+            final engine = typeMapping.newEngineWithTables(availableElements);
             final context = engine.analyze(query.sql);
 
             final analyzer = QueryAnalyzer(context, state, driver,
-                knownTypes: knownTypes, references: availableElements);
+                knownTypes: knownTypes,
+                typeMapping: typeMapping,
+                references: availableElements);
             queries[query.name] = await analyzer.analyze(query);
 
             for (final error in analyzer.lints) {
@@ -115,8 +130,19 @@ class FileAnalyzer {
           result.resolvedDatabases[element.id] =
               ResolvedDatabaseAccessor(queries, imports, availableElements);
         } else if (element is DriftIndex) {
-          // We need the SQL AST for each index to create them in code
-          element.createStatementForDartDefinition();
+          if (element.createStmt != null) {
+            final engine = driver.newSqlEngine();
+            final parsed = engine.parse(element.createStmt!);
+
+            if (parsed.rootNode case CreateIndexStatement stmt) {
+              element.parsedStatement = stmt;
+            }
+          }
+
+          if (element.parsedStatement == null) {
+            // We need the SQL AST for each index to create them in code
+            element.createStatementForDartDefinition();
+          }
         }
       }
     } else if (state.extension == '.drift' || state.extension == '.moor') {
@@ -129,8 +155,7 @@ class FileAnalyzer {
       for (final elementAnalysis in state.analysis.values) {
         final element = elementAnalysis.result;
         if (element is DefinedSqlQuery) {
-          final engine =
-              driver.typeMapping.newEngineWithTables(element.references);
+          final engine = typeMapping.newEngineWithTables(element.references);
           final stmt = parsedFile.statements
               .whereType<DeclaredStatement>()
               .firstWhere(
@@ -149,6 +174,7 @@ class FileAnalyzer {
           final analyzer = QueryAnalyzer(analysisResult, state, driver,
               knownTypes: knownTypes,
               references: element.references,
+              typeMapping: typeMapping,
               requiredVariables: options.variables);
 
           result.resolvedQueries[element.id] =

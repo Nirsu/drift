@@ -17,7 +17,7 @@ class DriftTriggerResolver
   Future<DriftTrigger> resolve() async {
     final stmt = discovered.sqlNode;
     final references = await resolveTableReferences(stmt);
-    final engine = newEngineWithTables(references);
+    final engine = await newEngineWithTables(references);
 
     final source = (file.discovery as DiscoveredDriftFile).originalSource;
     final context = engine.analyzeNode(stmt, source);
@@ -60,7 +60,8 @@ class DriftTriggerResolver
     return DriftTrigger(
       discovered.ownId,
       DriftDeclaration.driftFile(stmt, file.ownUri),
-      on: findInResolved(references, stmt.onTable.tableName) as DriftTable?,
+      on: findInResolved(references, stmt.onTable.tableName)
+          as DriftElementWithResultSet?,
       onWrite: onWrite,
       references: references,
       createStmt: source.substring(stmt.firstPosition, stmt.lastPosition),

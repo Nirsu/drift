@@ -135,6 +135,14 @@ class Post extends i0.DataClass implements i0.Insertable<i1.Post> {
         author: author ?? this.author,
         content: content.present ? content.value : this.content,
       );
+  Post copyWithCompanion(i1.PostsCompanion data) {
+    return Post(
+      id: data.id.present ? data.id.value : this.id,
+      author: data.author.present ? data.author.value : this.author,
+      content: data.content.present ? data.content.value : this.content,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('Post(')
@@ -217,7 +225,7 @@ class PostsCompanion extends i0.UpdateCompanion<i1.Post> {
   }
 }
 
-typedef $PostsInsertCompanionBuilder = i1.PostsCompanion Function({
+typedef $PostsCreateCompanionBuilder = i1.PostsCompanion Function({
   i0.Value<int> id,
   required int author,
   i0.Value<String?> content,
@@ -227,59 +235,6 @@ typedef $PostsUpdateCompanionBuilder = i1.PostsCompanion Function({
   i0.Value<int> author,
   i0.Value<String?> content,
 });
-
-class $PostsTableManager extends i0.RootTableManager<
-    i0.GeneratedDatabase,
-    i1.Posts,
-    i1.Post,
-    i1.$PostsFilterComposer,
-    i1.$PostsOrderingComposer,
-    $PostsProcessedTableManager,
-    $PostsInsertCompanionBuilder,
-    $PostsUpdateCompanionBuilder> {
-  $PostsTableManager(i0.GeneratedDatabase db, i1.Posts table)
-      : super(i0.TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              i1.$PostsFilterComposer(i0.ComposerState(db, table)),
-          orderingComposer:
-              i1.$PostsOrderingComposer(i0.ComposerState(db, table)),
-          getChildManagerBuilder: (p) => $PostsProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            i0.Value<int> author = const i0.Value.absent(),
-            i0.Value<String?> content = const i0.Value.absent(),
-          }) =>
-              i1.PostsCompanion(
-            id: id,
-            author: author,
-            content: content,
-          ),
-          getInsertCompanionBuilder: ({
-            i0.Value<int> id = const i0.Value.absent(),
-            required int author,
-            i0.Value<String?> content = const i0.Value.absent(),
-          }) =>
-              i1.PostsCompanion.insert(
-            id: id,
-            author: author,
-            content: content,
-          ),
-        ));
-}
-
-class $PostsProcessedTableManager extends i0.ProcessedTableManager<
-    i0.GeneratedDatabase,
-    i1.Posts,
-    i1.Post,
-    i1.$PostsFilterComposer,
-    i1.$PostsOrderingComposer,
-    $PostsProcessedTableManager,
-    $PostsInsertCompanionBuilder,
-    $PostsUpdateCompanionBuilder> {
-  $PostsProcessedTableManager(super.$state);
-}
 
 class $PostsFilterComposer
     extends i0.FilterComposer<i0.GeneratedDatabase, i1.Posts> {
@@ -342,6 +297,64 @@ class $PostsOrderingComposer
     return composer;
   }
 }
+
+class $PostsTableManager extends i0.RootTableManager<
+    i0.GeneratedDatabase,
+    i1.Posts,
+    i1.Post,
+    i1.$PostsFilterComposer,
+    i1.$PostsOrderingComposer,
+    $PostsCreateCompanionBuilder,
+    $PostsUpdateCompanionBuilder,
+    (i1.Post, i0.BaseReferences<i0.GeneratedDatabase, i1.Posts, i1.Post>),
+    i1.Post,
+    i0.PrefetchHooks Function({bool author})> {
+  $PostsTableManager(i0.GeneratedDatabase db, i1.Posts table)
+      : super(i0.TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              i1.$PostsFilterComposer(i0.ComposerState(db, table)),
+          orderingComposer:
+              i1.$PostsOrderingComposer(i0.ComposerState(db, table)),
+          updateCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            i0.Value<int> author = const i0.Value.absent(),
+            i0.Value<String?> content = const i0.Value.absent(),
+          }) =>
+              i1.PostsCompanion(
+            id: id,
+            author: author,
+            content: content,
+          ),
+          createCompanionCallback: ({
+            i0.Value<int> id = const i0.Value.absent(),
+            required int author,
+            i0.Value<String?> content = const i0.Value.absent(),
+          }) =>
+              i1.PostsCompanion.insert(
+            id: id,
+            author: author,
+            content: content,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), i0.BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $PostsProcessedTableManager = i0.ProcessedTableManager<
+    i0.GeneratedDatabase,
+    i1.Posts,
+    i1.Post,
+    i1.$PostsFilterComposer,
+    i1.$PostsOrderingComposer,
+    $PostsCreateCompanionBuilder,
+    $PostsUpdateCompanionBuilder,
+    (i1.Post, i0.BaseReferences<i0.GeneratedDatabase, i1.Posts, i1.Post>),
+    i1.Post,
+    i0.PrefetchHooks Function({bool author})>;
 
 class Likes extends i0.Table with i0.TableInfo<Likes, i1.Like> {
   @override
@@ -451,6 +464,13 @@ class Like extends i0.DataClass implements i0.Insertable<i1.Like> {
         post: post ?? this.post,
         likedBy: likedBy ?? this.likedBy,
       );
+  Like copyWithCompanion(i1.LikesCompanion data) {
+    return Like(
+      post: data.post.present ? data.post.value : this.post,
+      likedBy: data.likedBy.present ? data.likedBy.value : this.likedBy,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('Like(')
@@ -532,7 +552,7 @@ class LikesCompanion extends i0.UpdateCompanion<i1.Like> {
   }
 }
 
-typedef $LikesInsertCompanionBuilder = i1.LikesCompanion Function({
+typedef $LikesCreateCompanionBuilder = i1.LikesCompanion Function({
   required int post,
   required int likedBy,
   i0.Value<int> rowid,
@@ -542,59 +562,6 @@ typedef $LikesUpdateCompanionBuilder = i1.LikesCompanion Function({
   i0.Value<int> likedBy,
   i0.Value<int> rowid,
 });
-
-class $LikesTableManager extends i0.RootTableManager<
-    i0.GeneratedDatabase,
-    i1.Likes,
-    i1.Like,
-    i1.$LikesFilterComposer,
-    i1.$LikesOrderingComposer,
-    $LikesProcessedTableManager,
-    $LikesInsertCompanionBuilder,
-    $LikesUpdateCompanionBuilder> {
-  $LikesTableManager(i0.GeneratedDatabase db, i1.Likes table)
-      : super(i0.TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              i1.$LikesFilterComposer(i0.ComposerState(db, table)),
-          orderingComposer:
-              i1.$LikesOrderingComposer(i0.ComposerState(db, table)),
-          getChildManagerBuilder: (p) => $LikesProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            i0.Value<int> post = const i0.Value.absent(),
-            i0.Value<int> likedBy = const i0.Value.absent(),
-            i0.Value<int> rowid = const i0.Value.absent(),
-          }) =>
-              i1.LikesCompanion(
-            post: post,
-            likedBy: likedBy,
-            rowid: rowid,
-          ),
-          getInsertCompanionBuilder: ({
-            required int post,
-            required int likedBy,
-            i0.Value<int> rowid = const i0.Value.absent(),
-          }) =>
-              i1.LikesCompanion.insert(
-            post: post,
-            likedBy: likedBy,
-            rowid: rowid,
-          ),
-        ));
-}
-
-class $LikesProcessedTableManager extends i0.ProcessedTableManager<
-    i0.GeneratedDatabase,
-    i1.Likes,
-    i1.Like,
-    i1.$LikesFilterComposer,
-    i1.$LikesOrderingComposer,
-    $LikesProcessedTableManager,
-    $LikesInsertCompanionBuilder,
-    $LikesUpdateCompanionBuilder> {
-  $LikesProcessedTableManager(super.$state);
-}
 
 class $LikesFilterComposer
     extends i0.FilterComposer<i0.GeneratedDatabase, i1.Likes> {
@@ -671,3 +638,61 @@ class $LikesOrderingComposer
     return composer;
   }
 }
+
+class $LikesTableManager extends i0.RootTableManager<
+    i0.GeneratedDatabase,
+    i1.Likes,
+    i1.Like,
+    i1.$LikesFilterComposer,
+    i1.$LikesOrderingComposer,
+    $LikesCreateCompanionBuilder,
+    $LikesUpdateCompanionBuilder,
+    (i1.Like, i0.BaseReferences<i0.GeneratedDatabase, i1.Likes, i1.Like>),
+    i1.Like,
+    i0.PrefetchHooks Function({bool post, bool likedBy})> {
+  $LikesTableManager(i0.GeneratedDatabase db, i1.Likes table)
+      : super(i0.TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              i1.$LikesFilterComposer(i0.ComposerState(db, table)),
+          orderingComposer:
+              i1.$LikesOrderingComposer(i0.ComposerState(db, table)),
+          updateCompanionCallback: ({
+            i0.Value<int> post = const i0.Value.absent(),
+            i0.Value<int> likedBy = const i0.Value.absent(),
+            i0.Value<int> rowid = const i0.Value.absent(),
+          }) =>
+              i1.LikesCompanion(
+            post: post,
+            likedBy: likedBy,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required int post,
+            required int likedBy,
+            i0.Value<int> rowid = const i0.Value.absent(),
+          }) =>
+              i1.LikesCompanion.insert(
+            post: post,
+            likedBy: likedBy,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), i0.BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $LikesProcessedTableManager = i0.ProcessedTableManager<
+    i0.GeneratedDatabase,
+    i1.Likes,
+    i1.Like,
+    i1.$LikesFilterComposer,
+    i1.$LikesOrderingComposer,
+    $LikesCreateCompanionBuilder,
+    $LikesUpdateCompanionBuilder,
+    (i1.Like, i0.BaseReferences<i0.GeneratedDatabase, i1.Likes, i1.Like>),
+    i1.Like,
+    i0.PrefetchHooks Function({bool post, bool likedBy})>;

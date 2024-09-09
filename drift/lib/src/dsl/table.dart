@@ -282,6 +282,12 @@ final class TableIndex {
   /// using `#nextUpdateSnapshot`.
   final Set<Symbol> columns;
 
+  /// As an alternative to [name], [unique] and [columns], a `CREATE INDEX` SQL
+  /// statement defining the index.
+  ///
+  /// `drift_dev` will parse and validate the statement at build-time.
+  final String? createIndexStatement;
+
   /// An annotation for Dart-defined drift tables telling drift to add an SQL
   /// index to the table.
   ///
@@ -290,7 +296,19 @@ final class TableIndex {
     required this.name,
     required this.columns,
     this.unique = false,
-  });
+  }) : createIndexStatement = null;
+
+  /// An annotation for Dart-defined drift tables telling drift to add an index
+  /// defined by a [createIndexStatement].
+  ///
+  /// The index is still validated by `drift_dev` at build time. Using a custom
+  /// SQL statement enables advanced index options, such as using custom
+  /// collations or indexing expressions. It can also be used for partials
+  /// indexes by adding a `WHERE` clause.
+  const TableIndex.sql(String this.createIndexStatement)
+      : name = '',
+        unique = false,
+        columns = const {};
 }
 
 /// A class to be used as an annotation on [Table] classes to customize the
@@ -346,13 +364,43 @@ class DataClassName {
   /// ```
   final Type? extending;
 
-  /// Customize the data class name for a given table.
-  /// {@macro drift_custom_data_class}
-  const DataClassName(this.name, {this.extending, this.companion});
+  /// A list of classes that the drift-generated row class should implement.
+  ///
+  /// Listing classes here can be useful when you have several tables with the
+  /// same columns, as it allows extracting them into common interfaces shared
+  /// between multiple row classes:
+  ///
+  /// ```dart
+  /// abstract interface class HasCreationTimes {
+  ///   DateTime get createdAt;
+  /// }
+  ///
+  /// @DataClassName.custom(implementing: [HasCreationTimes])
+  /// class Accounts extends Table {
+  ///   // ...
+  ///   DateTimeColumn get createdAt => dateTime()
+  ///     .withDefault(currentDateAndTime)();
+  /// }
+  /// ```
+  final List<Type>? implementing;
 
   /// Customize the data class name for a given table.
   /// {@macro drift_custom_data_class}
-  const DataClassName.custom({this.name, this.extending, this.companion});
+  const DataClassName(
+    this.name, {
+    this.extending,
+    this.implementing,
+    this.companion,
+  });
+
+  /// Customize the data class name for a given table.
+  /// {@macro drift_custom_data_class}
+  const DataClassName.custom({
+    this.name,
+    this.extending,
+    this.implementing,
+    this.companion,
+  });
 }
 
 /// An annotation specifying an existing class to be used as a data class.

@@ -121,6 +121,13 @@ class SearchInPost extends i0.DataClass
         author: author ?? this.author,
         content: content ?? this.content,
       );
+  SearchInPost copyWithCompanion(i1.SearchInPostsCompanion data) {
+    return SearchInPost(
+      author: data.author.present ? data.author.value : this.author,
+      content: data.content.present ? data.content.value : this.content,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('SearchInPost(')
@@ -204,7 +211,7 @@ class SearchInPostsCompanion extends i0.UpdateCompanion<i1.SearchInPost> {
   }
 }
 
-typedef $SearchInPostsInsertCompanionBuilder = i1.SearchInPostsCompanion
+typedef $SearchInPostsCreateCompanionBuilder = i1.SearchInPostsCompanion
     Function({
   required String author,
   required String content,
@@ -216,59 +223,6 @@ typedef $SearchInPostsUpdateCompanionBuilder = i1.SearchInPostsCompanion
   i0.Value<String> content,
   i0.Value<int> rowid,
 });
-
-class $SearchInPostsTableManager extends i0.RootTableManager<
-    i0.GeneratedDatabase,
-    i1.SearchInPosts,
-    i1.SearchInPost,
-    i1.$SearchInPostsFilterComposer,
-    i1.$SearchInPostsOrderingComposer,
-    $SearchInPostsProcessedTableManager,
-    $SearchInPostsInsertCompanionBuilder,
-    $SearchInPostsUpdateCompanionBuilder> {
-  $SearchInPostsTableManager(i0.GeneratedDatabase db, i1.SearchInPosts table)
-      : super(i0.TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              i1.$SearchInPostsFilterComposer(i0.ComposerState(db, table)),
-          orderingComposer:
-              i1.$SearchInPostsOrderingComposer(i0.ComposerState(db, table)),
-          getChildManagerBuilder: (p) => $SearchInPostsProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
-            i0.Value<String> author = const i0.Value.absent(),
-            i0.Value<String> content = const i0.Value.absent(),
-            i0.Value<int> rowid = const i0.Value.absent(),
-          }) =>
-              i1.SearchInPostsCompanion(
-            author: author,
-            content: content,
-            rowid: rowid,
-          ),
-          getInsertCompanionBuilder: ({
-            required String author,
-            required String content,
-            i0.Value<int> rowid = const i0.Value.absent(),
-          }) =>
-              i1.SearchInPostsCompanion.insert(
-            author: author,
-            content: content,
-            rowid: rowid,
-          ),
-        ));
-}
-
-class $SearchInPostsProcessedTableManager extends i0.ProcessedTableManager<
-    i0.GeneratedDatabase,
-    i1.SearchInPosts,
-    i1.SearchInPost,
-    i1.$SearchInPostsFilterComposer,
-    i1.$SearchInPostsOrderingComposer,
-    $SearchInPostsProcessedTableManager,
-    $SearchInPostsInsertCompanionBuilder,
-    $SearchInPostsUpdateCompanionBuilder> {
-  $SearchInPostsProcessedTableManager(super.$state);
-}
 
 class $SearchInPostsFilterComposer
     extends i0.FilterComposer<i0.GeneratedDatabase, i1.SearchInPosts> {
@@ -298,6 +252,69 @@ class $SearchInPostsOrderingComposer
           i0.ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
+class $SearchInPostsTableManager extends i0.RootTableManager<
+    i0.GeneratedDatabase,
+    i1.SearchInPosts,
+    i1.SearchInPost,
+    i1.$SearchInPostsFilterComposer,
+    i1.$SearchInPostsOrderingComposer,
+    $SearchInPostsCreateCompanionBuilder,
+    $SearchInPostsUpdateCompanionBuilder,
+    (
+      i1.SearchInPost,
+      i0.BaseReferences<i0.GeneratedDatabase, i1.SearchInPosts, i1.SearchInPost>
+    ),
+    i1.SearchInPost,
+    i0.PrefetchHooks Function()> {
+  $SearchInPostsTableManager(i0.GeneratedDatabase db, i1.SearchInPosts table)
+      : super(i0.TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              i1.$SearchInPostsFilterComposer(i0.ComposerState(db, table)),
+          orderingComposer:
+              i1.$SearchInPostsOrderingComposer(i0.ComposerState(db, table)),
+          updateCompanionCallback: ({
+            i0.Value<String> author = const i0.Value.absent(),
+            i0.Value<String> content = const i0.Value.absent(),
+            i0.Value<int> rowid = const i0.Value.absent(),
+          }) =>
+              i1.SearchInPostsCompanion(
+            author: author,
+            content: content,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String author,
+            required String content,
+            i0.Value<int> rowid = const i0.Value.absent(),
+          }) =>
+              i1.SearchInPostsCompanion.insert(
+            author: author,
+            content: content,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), i0.BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $SearchInPostsProcessedTableManager = i0.ProcessedTableManager<
+    i0.GeneratedDatabase,
+    i1.SearchInPosts,
+    i1.SearchInPost,
+    i1.$SearchInPostsFilterComposer,
+    i1.$SearchInPostsOrderingComposer,
+    $SearchInPostsCreateCompanionBuilder,
+    $SearchInPostsUpdateCompanionBuilder,
+    (
+      i1.SearchInPost,
+      i0.BaseReferences<i0.GeneratedDatabase, i1.SearchInPosts, i1.SearchInPost>
+    ),
+    i1.SearchInPost,
+    i0.PrefetchHooks Function()>;
 i0.Trigger get postsInsert => i0.Trigger(
     'CREATE TRIGGER posts_insert AFTER INSERT ON posts BEGIN INSERT INTO search_in_posts ("rowid", author, content) VALUES (new.id, new.author, new.content);END',
     'posts_insert');
@@ -323,6 +340,8 @@ class SearchDrift extends i2.ModularAccessor {
   }
 
   i1.SearchInPosts get searchInPosts =>
-      this.resultSet<i1.SearchInPosts>('search_in_posts');
-  i3.Posts get posts => this.resultSet<i3.Posts>('posts');
+      i2.ReadDatabaseContainer(attachedDatabase)
+          .resultSet<i1.SearchInPosts>('search_in_posts');
+  i3.Posts get posts =>
+      i2.ReadDatabaseContainer(attachedDatabase).resultSet<i3.Posts>('posts');
 }

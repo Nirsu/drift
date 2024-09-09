@@ -60,6 +60,16 @@ class VerifierImplementation implements SchemaVerifier {
 
   Database _setupDatabase(String uri) {
     final database = sqlite3.open(uri, uri: true);
+    try {
+      database.config.doubleQuotedStringLiterals = false;
+    } on SqliteException {
+      print(
+        'Could not disable double-quoted string literals, migration tests '
+        'may behave differently than sqlite3 in your app. Please consider '
+        'updating sqlite3 on your system.',
+      );
+    }
+
     setup?.call(database);
     return database;
   }

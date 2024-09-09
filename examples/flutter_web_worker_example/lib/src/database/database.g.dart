@@ -106,6 +106,13 @@ class Entry extends DataClass implements Insertable<Entry> {
         id: id ?? this.id,
         value: value ?? this.value,
       );
+  Entry copyWithCompanion(EntriesCompanion data) {
+    return Entry(
+      id: data.id.present ? data.id.value : this.id,
+      value: data.value.present ? data.value.value : this.value,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('Entry(')
@@ -175,6 +182,7 @@ class EntriesCompanion extends UpdateCompanion<Entry> {
 
 abstract class _$MyDatabase extends GeneratedDatabase {
   _$MyDatabase(QueryExecutor e) : super(e);
+  $MyDatabaseManager get managers => $MyDatabaseManager(this);
   late final Entries entries = Entries(this);
   Selectable<Entry> allEntries() {
     return customSelect('SELECT * FROM entries', variables: [], readsFrom: {
@@ -204,4 +212,97 @@ abstract class _$MyDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [entries];
+}
+
+typedef $EntriesCreateCompanionBuilder = EntriesCompanion Function({
+  Value<int> id,
+  required String value,
+});
+typedef $EntriesUpdateCompanionBuilder = EntriesCompanion Function({
+  Value<int> id,
+  Value<String> value,
+});
+
+class $EntriesFilterComposer extends FilterComposer<_$MyDatabase, Entries> {
+  $EntriesFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get value => $state.composableBuilder(
+      column: $state.table.value,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $EntriesOrderingComposer extends OrderingComposer<_$MyDatabase, Entries> {
+  $EntriesOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get value => $state.composableBuilder(
+      column: $state.table.value,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+class $EntriesTableManager extends RootTableManager<
+    _$MyDatabase,
+    Entries,
+    Entry,
+    $EntriesFilterComposer,
+    $EntriesOrderingComposer,
+    $EntriesCreateCompanionBuilder,
+    $EntriesUpdateCompanionBuilder,
+    (Entry, BaseReferences<_$MyDatabase, Entries, Entry>),
+    Entry,
+    PrefetchHooks Function()> {
+  $EntriesTableManager(_$MyDatabase db, Entries table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: $EntriesFilterComposer(ComposerState(db, table)),
+          orderingComposer: $EntriesOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> value = const Value.absent(),
+          }) =>
+              EntriesCompanion(
+            id: id,
+            value: value,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String value,
+          }) =>
+              EntriesCompanion.insert(
+            id: id,
+            value: value,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $EntriesProcessedTableManager = ProcessedTableManager<
+    _$MyDatabase,
+    Entries,
+    Entry,
+    $EntriesFilterComposer,
+    $EntriesOrderingComposer,
+    $EntriesCreateCompanionBuilder,
+    $EntriesUpdateCompanionBuilder,
+    (Entry, BaseReferences<_$MyDatabase, Entries, Entry>),
+    Entry,
+    PrefetchHooks Function()>;
+
+class $MyDatabaseManager {
+  final _$MyDatabase _db;
+  $MyDatabaseManager(this._db);
+  $EntriesTableManager get entries => $EntriesTableManager(_db, _db.entries);
 }
